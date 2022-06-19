@@ -7,7 +7,16 @@
 #include <string.h>
 
 #define N 5000 //elementos en la tabla hash
-
+// Estructura de los simbolos
+typedef struct sym SYM;
+struct sym
+{
+   unsigned char name[50];
+   char value_type;
+   int int_value;
+   float float_value;
+   SYM * sig;
+};
 // EStructura de nodo del arbol sintactico
 typedef struct asr ASR;
 struct asr {
@@ -32,16 +41,7 @@ struct lst
 };
 
 
-// Estructura de los simbolos
-typedef struct sym SYM;
-struct sym
-{
-   unsigned char name[50];
-   char value_type;
-   int int_value;
-   float float_value;
-   SYM * sig;
-};
+
 
 
 
@@ -297,8 +297,8 @@ term : term MULTI factor                                       { char c1 = revis
 
 factor : PARENI expr PAREND                                    { $$ = $2; }
        | IDF                                               { SYM*n = buscar_simbolo($1); if (n == NULL) { yyerror("Variable no declarada."); } $$ = new_tree_node(VAR, $1, '0', 0, 0.0, NULL, NULL, NULL,n); }
-       | NINT                                                  { $$ = new_tree_node(CONS, "int", 'i', $1, 0, NULL, NULL, NULL); }
-       | NFLOAT                                                  { $$ = new_tree_node(CONS, "float", 'f', 0, $1, NULL, NULL, NULL); }
+       | NINT                                                  { $$ = new_tree_node(CONS, "int", 'i', $1, 0, NULL, NULL, NULL, NULL); }
+       | NFLOAT                                                  { $$ = new_tree_node(CONS, "float", 'f', 0, $1, NULL, NULL, NULL, NULL); }
        | IDF PARENI opt_exprs PAREND                          {SYM*n = buscar_simbolo($1); if (n == NULL) { yyerror("función no declarada."); } 
                                                                $$ = new_tree_node(CALL, $1, '0', 0, 0.0, $3, NULL, NULL,n); }
 
@@ -628,7 +628,7 @@ void check_tree(ASR * root)
       if (n -> node_type == ASSIGN)
       {
         // SYM *t = buscar_simbolo(n -> izquierda -> name); // nombre de la variable en la tabla de simbolos, se busca pro nombre
-         SYM *t = n -> simb;
+         SYM *t = n -> izquierda -> simb;
          if (t -> value_type == 'i') { t -> int_value = expr_int_value(n -> derecha); } // Int value
          else { t -> float_value = expr_float_value(n -> derecha); } // Float value
       }
@@ -894,7 +894,7 @@ void check_tree(ASR * root)
       // READ
       if (n -> node_type == READ)
       {
-         SYM *t = n -> simb; //buscar_simbolo(n -> izquierda -> name); // Get variable from the symbol table
+         SYM *t = n -> izquierda -> simb; //buscar_simbolo(n -> izquierda -> name); // Get variable from the symbol table
          if (expr_value_type(n -> izquierda) == 'i') { scanf("%i", &(t -> int_value)); } // Int type
          else { scanf("%f", &(t -> float_value)); } // Float type
       }
@@ -1008,7 +1008,7 @@ char expr_value_type(ASR * root)
 {
    if (root == NULL) return '0';
    if (root -> node_type == VAR) {  return root -> simb -> value_type;}
-   if (root -> node_type == PAR) {  return root -> simb -> value_type;}
+   if (root -> node_type == PARS) {  return root -> simb -> value_type;}
    if (root -> node_type == CONS) {  return root -> simb -> value_type;}// buscar_simbolo(root -> name) -> value_type; } // Look at the symbol table for the symbol's value type
    else { return root -> value_type; }
 }
