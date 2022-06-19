@@ -785,7 +785,7 @@ void check_tree(ASR * root)
             else if (strcmp(op, ">=") == 0) // <
             {
                while (l_expr >= r_expr){
-                  check_tree(n -> izquierda); 
+                  check_tree(n -> derecha); 
                   l_expr = expr_float_value(n -> izquierda -> izquierda); 
                   r_expr = expr_float_value(n -> izquierda -> derecha);
                }
@@ -793,107 +793,101 @@ void check_tree(ASR * root)
          }
       }
 
-
-
-
-
-
-
       // REPEAT UNTIL
       if (n -> node_type == REPEAT)
       {
-         char * op = n -> sig -> name; // =, > or <
-         if (expr_value_type(n -> sig) == 'i') // Int type
+         char * op = n -> izquierda -> name; // =, > or <
+         if (expr_value_type(n -> izquierda) == 'i') // Int type
          {
-            int l_expr = expr_int_value(n -> sig -> izquierda); // izquierda expr
-            int r_expr = expr_int_value(n -> sig -> derecha); // derecha expr
+            int l_expr = expr_int_value(n -> izquierda -> izquierda); // izquierda expr
+            int r_expr = expr_int_value(n -> izquierda -> derecha); // derecha expr
             if (strcmp(op, "=") == 0) // =
             {
                do{
-                  check_tree(n -> izquierda); 
-                  l_expr = expr_int_value(n -> sig -> izquierda); 
-                  r_expr = expr_int_value(n -> sig -> derecha);
+                  check_tree(n -> derecha); 
+                  l_expr = expr_int_value(n -> izquierda -> izquierda); 
+                  r_expr = expr_int_value(n -> izquierda -> derecha);
                }while (l_expr == r_expr);
             }
             else if (strcmp(op, ">") == 0) // >
             {
 
                 do{
-                  check_tree(n -> izquierda); 
-                  l_expr = expr_int_value(n -> sig -> izquierda); 
-                  r_expr = expr_int_value(n -> sig -> derecha);
+                  check_tree(n -> derecha); 
+                  l_expr = expr_int_value(n -> izquierda -> izquierda); 
+                  r_expr = expr_int_value(n -> izquierda -> derecha);
                }while (l_expr > r_expr);
         
             }
             else if (strcmp(op, "<") == 0) // <
             {
                 do{
-                  check_tree(n -> izquierda); 
-                  l_expr = expr_int_value(n -> sig -> izquierda); 
-                  r_expr = expr_int_value(n -> sig -> derecha);
+                  check_tree(n -> derecha); 
+                  l_expr = expr_int_value(n -> izquierda -> izquierda); 
+                  r_expr = expr_int_value(n -> izquierda -> derecha);
                }while (l_expr < r_expr);
             }
             else if (strcmp(op, "<=") == 0) // <
             {
                 do{
-                  check_tree(n -> izquierda); 
-                  l_expr = expr_int_value(n -> sig -> izquierda); 
-                  r_expr = expr_int_value(n -> sig -> derecha);
+                  check_tree(n -> derecha); 
+                  l_expr = expr_int_value(n -> izquierda -> izquierda); 
+                  r_expr = expr_int_value(n -> izquierda -> derecha);
                }while (l_expr <= r_expr);
             }
             else if (strcmp(op, ">=") == 0) // <
             {
                 do{
-                  check_tree(n -> izquierda); 
-                  l_expr = expr_int_value(n -> sig -> izquierda); 
-                  r_expr = expr_int_value(n -> sig -> derecha);
+                  check_tree(n -> derecha); 
+                  l_expr = expr_int_value(n -> izquierda -> izquierda); 
+                  r_expr = expr_int_value(n -> izquierda -> derecha);
                }while (l_expr >= r_expr);
             }
          }
          else // Float type
          {
-            float l_expr = expr_float_value(n -> sig -> izquierda); // izquierda expr
-            float r_expr = expr_float_value(n -> sig -> derecha); // derecha expr
+            float l_expr = expr_float_value(n -> izquierda -> izquierda); // izquierda expr
+            float r_expr = expr_float_value(n -> izquierda -> derecha); // derecha expr
             if (strcmp(op, "=") == 0) // =
             {
                 do{
-                  check_tree(n -> izquierda); 
-                  l_expr = expr_float_value(n -> sig -> izquierda); 
-                  r_expr = expr_float_value(n -> sig -> derecha);
+                  check_tree(n -> derecha); 
+                  l_expr = expr_float_value(n -> izquierda -> izquierda); 
+                  r_expr = expr_float_value(n -> izquierda -> derecha);
                }while (l_expr == r_expr);
             }
             else if (strcmp(op, ">") == 0) // >
             {
 
                 do{
-                  check_tree(n -> izquierda); 
-                  l_expr = expr_float_value(n -> sig -> izquierda); 
-                  r_expr = expr_float_value(n -> sig -> derecha);
+                  check_tree(n -> derecha); 
+                  l_expr = expr_float_value(n -> izquierda -> izquierda); 
+                  r_expr = expr_float_value(n -> izquierda -> derecha);
                }while (l_expr > r_expr);
         
             }
             else if (strcmp(op, "<") == 0) // <
             {
                 do{
-                  check_tree(n -> izquierda); 
-                  l_expr = expr_float_value(n -> sig -> izquierda); 
-                  r_expr = expr_float_value(n -> sig -> derecha);
+                  check_tree(n -> derecha); 
+                  l_expr = expr_float_value(n -> izquierda -> izquierda); 
+                  r_expr = expr_float_value(n -> izquierda -> derecha);
                }while (l_expr < r_expr);
             }
             else if (strcmp(op, "<=") == 0) // <
             {
                do{
-                  check_tree(n -> izquierda); 
-                  l_expr = expr_float_value(n -> sig -> izquierda); 
-                  r_expr = expr_float_value(n -> sig -> derecha);
+                  check_tree(n -> derecha); 
+                  l_expr = expr_float_value(n -> izquierda -> izquierda); 
+                  r_expr = expr_float_value(n -> izquierda -> derecha);
                }while (l_expr <= r_expr);
             }
             else if (strcmp(op, ">=") == 0) // <
             {
                 do{
-                  check_tree(n -> izquierda); 
-                  l_expr = expr_float_value(n -> sig -> izquierda); 
-                  r_expr = expr_float_value(n -> sig -> derecha);
+                  check_tree(n -> derecha); 
+                  l_expr = expr_float_value(n -> izquierda -> izquierda); 
+                  r_expr = expr_float_value(n -> izquierda -> derecha);
                }while (l_expr >= r_expr);
             }
          }
