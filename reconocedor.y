@@ -61,7 +61,7 @@ extern int line;
 int yyerror(char const * s);
 
 ASR * new_tree_node(int, unsigned char [], char, int, float, ASR *, ASR *, ASR *);
-
+ASR * search_node_tree(ASR *,unsigned char []);
 
 char revision_tipos(ASR *);
 void assign_type(LST *, int);
@@ -104,6 +104,9 @@ int expr_int_value(ASR * root);
 float expr_float_value(ASR * root);
 char expr_value_type(ASR * root);
 
+
+
+
 void print_tree(ASR *, int);
 void print_list(LST *);
 void print_table();
@@ -138,7 +141,7 @@ SFUN *tablefpar[N]; // tabla hash de funciones
    char yytipo;
 }
 
-%token END PROGRAM BEGINI IF ENDIF ELSE FOR STEP DO WHILE READ PRINT SUMA RESTA MULTI DIVIDE PARENI PAREND EQUAL MENORQ MAYORQ MENORIQ MAYORIQ PCOMA DOSPUNTOS COMA OTRO INT FLOAT CONS VAR PYC REPEAT UNTIL ASSIGN THEN FUN CALL RETURN
+%token END PROGRAM BEGINI IF ENDIF ELSE FOR STEP DO WHILE READ PRINT SUMA RESTA MULTI DIVIDE PARENI PAREND EQUAL MENORQ MAYORQ MENORIQ MAYORIQ PCOMA DOSPUNTOS COMA OTRO INT FLOAT CONS VAR PYC REPEAT UNTIL ASSIGN THEN FUN CALL RETRN
 %precedence THEN
 %precedence ELSE
 %token<yyint> NINT
@@ -257,36 +260,25 @@ stmt :  IDF ASSIGN expr
 
            | FOR IDF ASSIGN expr UNTIL expr STEP expr DO stmt
            
-           {$$ = NULL;/*SYM *n = buscar_simbolo($2); 
+           {SYM *n = buscar_simbolo($2); 
            if (n == NULL) { 
            yyerror("Variable no declarada"); 
            } 
-           if (n -> value_type != revision_tipos($4)) {
+           if (n -> value_type != revision_tipos($4) || n -> value_type != revision_tipos($6) || n -> value_type != revision_tipos($8)) {
             yyerror("Tipos incompatibles"); 
            } 
 
             $$ = new_tree_node(PYC, ";", '0', 0, 0.0, 
             new_tree_node(FOR, "for", '0', 0, 0.0, 
-            new_tree_node(ASSIGN, "assign", '0', 0, 0.0, new_tree_node(VAR, $2, '0', 0, 0.0, NULL, NULL, NULL), $3, NULL), 
-            new_tree_node(ASSIGN, "assign", '0', 0, 0.0, new_tree_node(VAR, $2, '0', 0, 0.0, NULL, NULL, NULL), $3, NULL), 
-            
-            
-            , NULL,  $5),
-            NULL,NULL);
-
-           $$ = new_tree_node(PYC, ";", '0', 0, 0.0, 
-             new_tree_node(ASSIGN, "assign", '0', 0, 0.0, new_tree_node(VAR, $1, '0', 0, 0.0, NULL, NULL, NULL), $3, NULL), 
-
-
-          new_tree_node(ASSIGN, "assign", '0', 0, 0.0, new_tree_node(VAR, $1, '0', 0, 0.0, NULL, NULL, NULL), $3, NULL), 
+            new_tree_node(ASSIGN, "assign", '0', 0, 0.0, new_tree_node(VAR, $1, '0', 0, 0.0, NULL, NULL, NULL), $3, $6),$8,$10),NULL,NULL);
            
-           new_tree_node(STEP,"step", '0', 0, 0.0, $6, $8, NULL), NULL); */
            }
            
 
      | READ IDF                                            { SYM *n = buscar_simbolo($2); if (n == NULL) { yyerror("Variable no declarada"); } $$ = new_tree_node(PYC, ";", '0', 0, 0.0, new_tree_node(READ, "read", '0', 0, 0.0, new_tree_node(VAR, $2, '0', 0, 0.0, NULL, NULL, NULL), NULL, NULL), NULL, NULL); }
-     | PRINT expr                                              { $$ = new_tree_node(PYC, ";", '0', 0, 0.0, new_tree_node(PRINT, "print", '0', 0, 0.0, $2, NULL, NULL), NULL, NULL); }
-     | BEGINI opt_stmts END                                      { $$ = $2; }
+     | PRINT expr                                          { $$ = new_tree_node(PYC, ";", '0', 0, 0.0, new_tree_node(PRINT, "print", '0', 0, 0.0, $2, NULL, NULL), NULL, NULL); }
+     | RETRN expr                                          { $$ = new_tree_node(PYC, ";", '0', 0, 0.0, new_tree_node(RETRN, "return", '0', 0, 0.0, $2, NULL, NULL), NULL, NULL); }
+     | BEGINI opt_stmts END                                { $$ = $2; }
 ;
 
 opt_stmts : //palabra vacia
@@ -611,7 +603,14 @@ char revision_tipos(ASR * root)
    if (n -> node_type == CONS) {
       return n -> value_type; // Si es un numero constante
    }
-   else if (n -> node_type == VAR) { return buscar_simbolo(n -> name) -> value_type; } // Variable
+   else if (n -> node_type == CALL) { 
+      return search_node_tree(n -> name) -> value_type; 
+   } // llamada a función
+
+
+   else if (n -> node_type == VAR) { 
+      return buscar_simbolo(n -> name) -> value_type; 
+   } // Variable
    char a = revision_tipos(n -> izquierda); 
    char b = revision_tipos(n -> derecha); 
    if (a == b) { return a; } 
@@ -654,9 +653,32 @@ unsigned int hash(unsigned char w[])
 }
 
 
+SFUN * buscar_simbolo_fvar(unsigned char name[])
+{
+   SFUN *n = tablefvar[hash(name)];
+   while (n != NULL) 
+   {
+      if (strcmp(n -> name, name) == 0) { 
+      return n; 
+      } 
+      n = n -> sig;
+   }
 
+   return NULL; 
+}
 
-
+ASR * search_node_tree(ASR * root, unsigned char name[]){
+   
+   ASR *n = root;
+   while (n != NULL) 
+   {
+      if (strcmp(n -> name, name) == 0) { 
+      return n; 
+      } 
+      n = n -> sig;
+   }
+   return NULL; 
+}
 
 
 
@@ -918,106 +940,31 @@ void check_tree(ASR * root)
 
 
 
+
+
+
+
+
+
+
       // FOR 
-      if (n -> node_type == FOR)
-      {
-         char * op = n -> sig -> name; // =, > or <
-         if (expr_value_type(n -> sig) == 'i') // Int type
-         {
-            int l_expr = expr_int_value(n -> sig -> izquierda); // izquierda expr
-            int r_expr = expr_int_value(n -> sig -> derecha); // derecha expr
-            if (strcmp(op, "=") == 0) // =
-            {
-               do{
-                  check_tree(n -> izquierda); 
-                  l_expr = expr_int_value(n -> sig -> izquierda); 
-                  r_expr = expr_int_value(n -> sig -> derecha);
-               }while (l_expr == r_expr);
-            }
-            else if (strcmp(op, ">") == 0) // >
-            {
+      if (n -> node_type == FOR){
 
-                do{
-                  check_tree(n -> izquierda); 
-                  l_expr = expr_int_value(n -> sig -> izquierda); 
-                  r_expr = expr_int_value(n -> sig -> derecha);
-               }while (l_expr > r_expr);
-        
-            }
-            else if (strcmp(op, "<") == 0) // <
-            {
-                do{
-                  check_tree(n -> izquierda); 
-                  l_expr = expr_int_value(n -> sig -> izquierda); 
-                  r_expr = expr_int_value(n -> sig -> derecha);
-               }while (l_expr < r_expr);
-            }
-            else if (strcmp(op, "<=") == 0) // <
-            {
-                do{
-                  check_tree(n -> izquierda); 
-                  l_expr = expr_int_value(n -> sig -> izquierda); 
-                  r_expr = expr_int_value(n -> sig -> derecha);
-               }while (l_expr <= r_expr);
-            }
-            else if (strcmp(op, ">=") == 0) // <
-            {
-                do{
-                  check_tree(n -> izquierda); 
-                  l_expr = expr_int_value(n -> sig -> izquierda); 
-                  r_expr = expr_int_value(n -> sig -> derecha);
-               }while (l_expr >= r_expr);
-            }
+         check_tree(n -> izquierda);
+         if (expr_value_type(n -> izquierda) == 'i') // Int type
+         {
+               for (int i = expr_int_value(n -> izquierda); i <= expr_int_value(n -> izquierda -> izquierda); i = i + expr_int_value(n -> derecha) )
+                     {
+                             check_tree(n -> sig); 
+                     }
          }
-         else // Float type
-         {
-            float l_expr = expr_float_value(n -> sig -> izquierda); // izquierda expr
-            float r_expr = expr_float_value(n -> sig -> derecha); // derecha expr
-            if (strcmp(op, "=") == 0) // =
-            {
-                do{
-                  check_tree(n -> izquierda); 
-                  l_expr = expr_float_value(n -> sig -> izquierda); 
-                  r_expr = expr_float_value(n -> sig -> derecha);
-               }while (l_expr == r_expr);
-            }
-            else if (strcmp(op, ">") == 0) // >
-            {
-
-                do{
-                  check_tree(n -> izquierda); 
-                  l_expr = expr_float_value(n -> sig -> izquierda); 
-                  r_expr = expr_float_value(n -> sig -> derecha);
-               }while (l_expr > r_expr);
-        
-            }
-            else if (strcmp(op, "<") == 0) // <
-            {
-                do{
-                  check_tree(n -> izquierda); 
-                  l_expr = expr_float_value(n -> sig -> izquierda); 
-                  r_expr = expr_float_value(n -> sig -> derecha);
-               }while (l_expr < r_expr);
-            }
-            else if (strcmp(op, "<=") == 0) // <
-            {
-               do{
-                  check_tree(n -> izquierda); 
-                  l_expr = expr_float_value(n -> sig -> izquierda); 
-                  r_expr = expr_float_value(n -> sig -> derecha);
-               }while (l_expr <= r_expr);
-            }
-            else if (strcmp(op, ">=") == 0) // <
-            {
-                do{
-                  check_tree(n -> izquierda); 
-                  l_expr = expr_float_value(n -> sig -> izquierda); 
-                  r_expr = expr_float_value(n -> sig -> derecha);
-               }while (l_expr >= r_expr);
-            }
+         else{
+                  for (int i = expr_float_value(n -> izquierda); i <= expr_float_value(n -> izquierda -> izquierda); i = i + expr_float_value(n -> derecha) )
+                     {
+                             check_tree(n -> sig); 
+                     }  
          }
       }
-
 
 
 
@@ -1055,7 +1002,11 @@ int expr_int_value(ASR * root)
    }
    else if (root -> node_type == CONS) { return root -> int_value; } // Constant
    else if (root -> node_type == VAR) { return buscar_simbolo(root -> name) -> int_value; } // Variable
-   else if (root -> node_type == CALL) { return buscar_simbolo(root -> name) -> int_value; } // Variable
+   else if (root -> node_type == CALL) {
+      ASR * aux = search_node_tree(tree_fun, root -> name); 
+     
+  //   ASR * valor_ret = do_fun_tree(root -> name, aux -> derecha);
+      return aux -> int_value; } // Variable
 }
 
 
@@ -1076,7 +1027,12 @@ float expr_float_value(ASR * root)
    }
    else if (root -> node_type == CONS) { return root -> float_value; } // Constant
    else if (root -> node_type == VAR) { return buscar_simbolo(root -> name) -> float_value; } // Variable
-   else if (root -> node_type == CALL) { return buscar_simbolo(root -> name) -> float_value; } // Variable
+   else if (root -> node_type == CALL) {
+
+            ASR * aux = search_node_tree(tree_fun, root -> name); 
+     
+      //ASR * valor_ret = do_fun_tree(root -> name, aux -> derecha);
+      return aux -> float_value; } // Variable
 
 }
 

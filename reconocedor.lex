@@ -37,7 +37,7 @@ ID [_$a-zA-Z][_$a-zA-Z0-9]
 "print"                      {return PRINT; /* Se encontr� la palabra print */}
 
 "fun"                      {return FUN; /* Se encontr� la palabra fun */}
-
+"return"                      {return RETRN; /* Se encontr� la palabra return */}
 
 [_$a-zA-Z][_$a-zA-Z0-9]*     {strcpy(yylval.yyid, yytext); return IDF; /* Se encontr� un identificador */}
 {FLOAT}             {yylval.yyfloat = atof(yytext); return NFLOAT; /* Se encontr� un flotante */}
