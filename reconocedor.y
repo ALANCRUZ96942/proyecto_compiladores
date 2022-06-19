@@ -65,13 +65,13 @@ ASR * new_tree_node(int, unsigned char [], char, int, float, ASR *, ASR *, ASR *
 
 char revision_tipos(ASR *);
 void assign_type(LST *, int);
-void assign_type_f(LST *, int);
+
 void assign_type_fvar(LST *, int);
 
 
 void tabla_simb();
 void tabla_simbf();
-void tabla_simbf_var();
+void tabla_simbf_par();
 unsigned int hash(unsigned char []);
 
 
@@ -91,6 +91,10 @@ void insert_table_node_f(SFUN *);
 SFUN * nuevo_nodo_tabla_fvar(unsigned char [], int);
 SFUN * buscar_simbolo_fvar(unsigned char []);
 void insert_table_node_fvar(SFUN *);
+
+SFUN * nuevo_nodo_tabla_fpar(unsigned char [], int);
+SFUN * buscar_simbolo_fpar(unsigned char []);
+void insert_table_node_fpar(SFUN *);
 
 void imprimir_sym();
 
@@ -112,6 +116,8 @@ LST *list = NULL;
 LST *list_fun = NULL; // lista de id de funciones
 ASR * tree_fun = NULL;  //arbol de funcionalidades de funciones
 
+
+LST *list_fun_par = NULL; // lista de variables locales de funciones
 LST *list_fun_var = NULL; // lista de variables locales de funciones
 
 
@@ -119,6 +125,7 @@ LST *list_fun_var = NULL; // lista de variables locales de funciones
 SYM *table[N]; // tabla hash de simbolos globales
 SFUN *tablef[N]; // tabla hash de funciones
 SFUN *tablefvar[N]; // tabla hash de funciones
+SFUN *tablefpar[N]; // tabla hash de funciones
 
 %}
 
@@ -131,20 +138,20 @@ SFUN *tablefvar[N]; // tabla hash de funciones
    char yytipo;
 }
 
-%token END PROGRAM BEGINI IF ENDIF ELSE FOR STEP DO WHILE READ PRINT SUMA RESTA MULTI DIVIDE PARENI PAREND EQUAL MENORQ MAYORQ MENORIQ MAYORIQ PCOMA DOSPUNTOS COMA OTRO INT FLOAT CONS VAR PYC REPEAT UNTIL ASSIGN THEN FUN CALL
+%token END PROGRAM BEGINI IF ENDIF ELSE FOR STEP DO WHILE READ PRINT SUMA RESTA MULTI DIVIDE PARENI PAREND EQUAL MENORQ MAYORQ MENORIQ MAYORIQ PCOMA DOSPUNTOS COMA OTRO INT FLOAT CONS VAR PYC REPEAT UNTIL ASSIGN THEN FUN CALL RETURN
 %precedence THEN
 %precedence ELSE
 %token<yyint> NINT
 %token<yyfloat> NFLOAT
 %token<yyid> IDF
 %type <yytipo> type
-%type <yynodo> stmt stmt_lst expr term factor expresion opt_stmts  opt_exprs expr_lst         
-%type <yylista> opt_decls decl_lst decl     oparams params param         opt_fun_decls fun_decls fun_decl
+%type <yynodo> stmt stmt_lst expr term factor expresion opt_stmts  opt_exprs expr_lst       oparams params param            opt_fun_decls fun_decls fun_decl
+%type <yylista> opt_decls decl_lst decl    
 %start prog
 
 %%
 
-prog : PROGRAM IDF opt_decls opt_fun_decls BEGINI opt_stmts END { list = $3; tree = $6; list_fun = $4;  } 
+prog : PROGRAM IDF opt_decls opt_fun_decls BEGINI opt_stmts END { list = $3; tree = $6; tree_fun = $4;  } 
 ;
 
 opt_decls : //palabra vacia
@@ -181,18 +188,13 @@ opt_fun_decls: { $$ = NULL; }//palabra vacía
                | fun_decls  { $$ = $1; };
 
 
-fun_decls : fun_decl fun_decl        { cola($1) -> sig = $2; $$ = $1; }
+fun_decls : fun_decls fun_decl          { $1 -> sig = $2, $$ = $1; }//{ cola($1) -> sig = $2; $$ = $1; }
           | fun_decl                 { $$ = $1; };
 
 
 
 
 fun_decl : FUN IDF PARENI oparams PAREND DOSPUNTOS type opt_decls BEGINI opt_stmts END  {
-   
-   list_fun_var = $4;
-   tree_fun = $10;
-
-   LST *v = nuevo_nodo_lista($2, $7, NULL); 
 
    SFUN *n2 = nuevo_nodo_tabla_f($2, $7); 
    if (buscar_simbolo_f($2) != NULL){
@@ -200,25 +202,17 @@ fun_decl : FUN IDF PARENI oparams PAREND DOSPUNTOS type opt_decls BEGINI opt_stm
    } 
 
    insert_table_node_f(n2); 
-   assign_type_f(v, $7);
-   $$ = v;
+  $$ = new_tree_node(FUN, $2, $7, 0, 0.0, $4 ,$10, NULL); }
 
-   }
    |FUN IDF PARENI oparams PAREND DOSPUNTOS type PCOMA{
          
-         list_fun_var = $4;
+   SFUN *n2 = nuevo_nodo_tabla_f($2, $7); 
+   if (buscar_simbolo_f($2) != NULL){
+       yyerror("Esta variable ya existe"); 
+   } 
 
-         LST *v = nuevo_nodo_lista($2, $7, NULL); 
-
-         SFUN *n2 = nuevo_nodo_tabla_f($2, $7); 
-         if (buscar_simbolo_f($2) != NULL){
-            yyerror("Esta variable ya existe"); 
-         } 
-         insert_table_node_f(n2); 
-         assign_type_f(v, $7);
-         $$ = v;
-
-
+   insert_table_node_f(n2); 
+    $$ = new_tree_node(FUN, $2, $7, 0, 0.0, NULL ,NULL, NULL);
 
    };
 
@@ -227,22 +221,18 @@ oparams: {$$ = NULL;}
 
 
 params: 
-         param COMA params {cola($1) -> sig = $3; $$ = $1;}
+         param COMA params { $1 -> sig = $3, $$ = $1; } //{cola($1) -> sig = $3; $$ = $1;}
          |param{$$ = $1;};
 
 param: IDF DOSPUNTOS type {
 
-      
-      LST *n3 = nuevo_nodo_lista($1, $3, NULL); 
-
-      SFUN *n4 = nuevo_nodo_tabla_fvar($1, $3); 
-      if (buscar_simbolo_fvar($1) != NULL){ 
+      SFUN *n4 = nuevo_nodo_tabla_fpar($1, $3); 
+      if (buscar_simbolo_fpar($1) != NULL){ 
          yyerror("Esta variable ya existe"); 
       } 
-      insert_table_node_fvar(n4); 
-      assign_type_fvar(n3, $3); 
-      $$ = n3;
+      insert_table_node_fpar(n4); 
 
+      $$ = new_tree_node(VAR, $1, $3, 0, 0.0, NULL ,NULL, NULL);
 
 };
 
@@ -357,7 +347,7 @@ void main(int argc, char *argv[])
    
    tabla_simbf();
    
-   tabla_simbf_var();
+   tabla_simbf_par();
    yyparse();
    check_tree(tree);
    //imprimir_sym();
@@ -439,17 +429,6 @@ SFUN * nuevo_nodo_tabla_f(unsigned char name[], int type)
 }
 
 
-// asignacion de tipo en funciones
-void assign_type_f(LST * head, int type)
-{
-   LST *n = head; 
-   while (n != NULL) 
-   {
-      SFUN *t = buscar_simbolo_f(n -> name);
-      t -> value_type = type;
-      n = n -> sig;
-   }
-}
 
 void insert_table_node_f(SFUN *t)
 {
@@ -484,6 +463,50 @@ SFUN * buscar_simbolo_f(unsigned char name[])
 
 
 
+
+
+/*metodos para parametros de funciones*/
+//tabla de parametros de funciones
+SFUN * nuevo_nodo_tabla_fpar(unsigned char name[], int type)
+{
+   SFUN * aux = (SFUN *) malloc(sizeof(SFUN)); //nodo de simbolo
+   strcpy(aux -> name, name);
+   aux -> value_type = type;
+
+   return aux;
+}
+
+
+
+void insert_table_node_fpar(SFUN *t)
+{
+   unsigned int i = hash(t -> name);
+   if (tablefpar[i] == NULL) { tablefpar[i] = t; }
+   else
+   {
+      SFUN *n = tablefpar[i];
+      while (n -> sig != NULL) { 
+      n = n -> sig; 
+      }
+      n -> sig = t;
+   }
+}
+
+
+// busqueda EN SIMBOLOS de funciones
+SFUN * buscar_simbolo_fpar(unsigned char name[])
+{
+   SFUN *n = tablefpar[hash(name)];
+   while (n != NULL) 
+   {
+      if (strcmp(n -> name, name) == 0) { 
+      return n; 
+      } 
+      n = n -> sig;
+   }
+
+   return NULL; 
+}
 
 
 
@@ -616,9 +639,9 @@ void tabla_simbf()
     for (int i = 0; i < N; i++) { tablef[i] = NULL; } // Iterate array
 }
 
-void tabla_simbf_var()
+void tabla_simbf_par()
 {
-    for (int i = 0; i < N; i++) { tablefvar[i] = NULL; } // Iterate array
+    for (int i = 0; i < N; i++) { tablefpar[i] = NULL; } // Iterate array
 }
 unsigned int hash(unsigned char w[])
 {
