@@ -685,7 +685,7 @@ void check_tree(ASR * root)
    ASR *parent = root; // ; node
 
    // NULL
-   if (parent == NULL || parent == RETRN) { return; }
+   if (parent == NULL || parent -> node_type  == RETRN) { return; }
 
    // Bloque punto y coma
    if (parent -> node_type == PYC) 
@@ -986,7 +986,7 @@ void check_tree(ASR * root)
                parent -> int_value = expr_int_value(n -> izquierda);
                }
                else{
-                  yyerror("Error, el numero retornado es un float, se esperaba int")
+                  yyerror("Error, el numero retornado es un float, se esperaba int");
                }
             }
             check_tree(n);
@@ -999,7 +999,7 @@ void check_tree(ASR * root)
             parent -> float_value = expr_float_value(n -> izquierda);
             }
             else{
-               yyerror("Error, el numero retornado es un int, se esperaba float")
+               yyerror("Error, el numero retornado es un int, se esperaba float");
             }
          }
          check_tree(n);

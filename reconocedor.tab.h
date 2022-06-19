@@ -93,9 +93,10 @@ extern int yydebug;
     FUN = 294,                     /* FUN  */
     CALL = 295,                    /* CALL  */
     RETRN = 296,                   /* RETRN  */
-    NINT = 297,                    /* NINT  */
-    NFLOAT = 298,                  /* NFLOAT  */
-    IDF = 299                      /* IDF  */
+    PARS = 297,                    /* PARS  */
+    NINT = 298,                    /* NINT  */
+    NFLOAT = 299,                  /* NFLOAT  */
+    IDF = 300                      /* IDF  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -113,7 +114,7 @@ union YYSTYPE
    float yyfloat;
    char yytipo;
 
-#line 117 "reconocedor.tab.h"
+#line 118 "reconocedor.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

@@ -1,0 +1,21 @@
+program dos
+  var x : int;
+  var y: int;
+  var z: int;
+  var k: int
+  
+  fun w(a:int,y:int):int
+  begin
+  x <- 1;
+  y <- 2;
+  k <- x+y;
+  return k
+  end
+  
+begin
+  read x;
+  read y;
+  print w(x,y);
+  print z
+  
+end
