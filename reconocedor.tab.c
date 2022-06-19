@@ -1529,14 +1529,14 @@ yyreduce:
 
   case 26: /* stmt: FOR IDF ASSIGN expr UNTIL expr STEP expr DO stmt  */
 #line 272 "reconocedor.y"
-           {SYM *n = buscar_simbolo((yyvsp[-8].yyid)); 
+           {(yyval.yynodo) = NULL;/*SYM *n = buscar_simbolo($2); 
            if (n == NULL) { 
            yyerror("Variable no declarada"); 
            } 
-           if (n -> value_type != revision_tipos((yyvsp[-6].yynodo))) {
+           if (n -> value_type != revision_tipos($4)) {
             yyerror("Tipos incompatibles"); 
            } 
-/*
+
             $$ = new_tree_node(PYC, ";", '0', 0, 0.0, 
             new_tree_node(FOR, "for", '0', 0, 0.0, 
             new_tree_node(ASSIGN, "assign", '0', 0, 0.0, new_tree_node(VAR, $2, '0', 0, 0.0, NULL, NULL, NULL), $3, NULL), 

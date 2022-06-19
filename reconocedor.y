@@ -269,14 +269,14 @@ stmt :  IDF ASSIGN expr
 
            | FOR IDF ASSIGN expr UNTIL expr STEP expr DO stmt
            
-           {SYM *n = buscar_simbolo($2); 
+           {$$ = NULL;/*SYM *n = buscar_simbolo($2); 
            if (n == NULL) { 
            yyerror("Variable no declarada"); 
            } 
            if (n -> value_type != revision_tipos($4)) {
             yyerror("Tipos incompatibles"); 
            } 
-/*
+
             $$ = new_tree_node(PYC, ";", '0', 0, 0.0, 
             new_tree_node(FOR, "for", '0', 0, 0.0, 
             new_tree_node(ASSIGN, "assign", '0', 0, 0.0, new_tree_node(VAR, $2, '0', 0, 0.0, NULL, NULL, NULL), $3, NULL), 

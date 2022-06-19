@@ -6,10 +6,11 @@ begin
 read x;
 read y;
 z <- 0;
-for z <- 0 until 2 step 1 do
+repeat 
 begin
 z <- z + y;
 x <- x - 1
-end;
+end
+until (x = 1);
 print z
 end
