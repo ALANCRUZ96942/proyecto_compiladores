@@ -1,6 +1,6 @@
 program cinco
    var x : int
 begin
-   for x <- 3 until 5 step 5 do
+   for x <- 10 until 100 step 10 do
      print x
 end
