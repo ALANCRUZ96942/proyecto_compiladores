@@ -263,7 +263,7 @@ stmt :  IDF ASSIGN expr
      | IF expresion THEN stmt                                      { $$ = new_tree_node(PYC, ";", '0', 0, 0.0, new_tree_node(IF, "if", '0', 0, 0.0, $2, $4, NULL), NULL, NULL); }
      | IF expresion THEN stmt ELSE stmt                            { $$ = new_tree_node(PYC, ";", '0', 0, 0.0, new_tree_node(IF, "if", '0', 0, 0.0, $2, $4, $6), NULL, NULL); }
      | WHILE PARENI expresion PAREND stmt                          { $$ = new_tree_node(PYC, ";", '0', 0, 0.0, new_tree_node(WHILE, "while", '0', 0, 0.0, $3,$5,NULL), NULL, NULL); }
-     | REPEAT stmt UNTIL PARENI expresion PAREND                   { $$ = new_tree_node(PYC, ";", '0', 0, 0.0, new_tree_node(REPEAT, "repeat", '0', 0, 0.0,  $5, %2,NULL ), NULL, NULL); }
+     | REPEAT stmt UNTIL PARENI expresion PAREND                   { $$ = new_tree_node(PYC, ";", '0', 0, 0.0, new_tree_node(REPEAT, "repeat", '0', 0, 0.0,  $5, $2,NULL ), NULL, NULL); }
 
            | FOR IDF ASSIGN expr UNTIL expr STEP expr DO stmt
            
@@ -322,7 +322,7 @@ factor : PARENI expr PAREND                                    { $$ = $2; }
        | IDF                                               { if (buscar_simbolo($1) == NULL) { yyerror("Variable no declarada."); } $$ = new_tree_node(VAR, $1, '0', 0, 0.0, NULL, NULL, NULL); }
        | NINT                                                  { $$ = new_tree_node(CONS, "int", 'i', $1, 0, NULL, NULL, NULL); }
        | NFLOAT                                                  { $$ = new_tree_node(CONS, "float", 'f', 0, $1, NULL, NULL, NULL); }
-       | IDF PAREND opt_exprs PAREND                          { if (buscar_simbolo_f($1) == NULL) { yyerror("Variable no declarada."); } 
+       | IDF PARENI opt_exprs PAREND                          { if (buscar_simbolo_f($1) == NULL) { yyerror("Variable no declarada."); } 
                                                                $$ = new_tree_node(CALL, $1, '0', 0, 0.0, $3, NULL, NULL); }
 
 ;
