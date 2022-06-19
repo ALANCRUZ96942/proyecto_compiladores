@@ -1,0 +1,15 @@
+program prueba 
+var x: int;
+var y: int;
+var z: int
+begin
+read x;
+read y;
+z <- 0;
+for z <- 0 until 2 step 1 do
+begin
+z <- z + y;
+x <- x - 1
+end;
+print z
+end

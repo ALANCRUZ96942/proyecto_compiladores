@@ -1,0 +1,8 @@
+program siete
+   var x : int;
+   var y : float
+begin
+  x <- 3;
+  y <- 4.5;
+  print x + y
+end

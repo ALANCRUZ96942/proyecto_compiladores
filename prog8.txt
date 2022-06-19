@@ -1,0 +1,9 @@
+program ocho
+  var x : int;
+  var y : int
+begin
+  x <- 3;
+  y <- 4;
+  z <- x + y;
+  print z
+end
