@@ -55,6 +55,7 @@ ID [_$a-zA-Z][_$a-zA-Z0-9]
 ">="                          {return MAYORIQ; /* Se encontr� un ">" */}
 ";"                          {return PCOMA; /* Se encontr� un ";" */}
 ":"                          {return DOSPUNTOS; /* Se encontr� un ":" */}
+","                          {return COMA; /* Se encontr� un "," */}
 "<-"                           {return ASSIGN;}
 
 [ \t]                        {/* Ignora  espacio o tabulacion */}

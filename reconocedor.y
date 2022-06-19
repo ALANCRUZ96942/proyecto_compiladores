@@ -45,7 +45,7 @@ struct sym
 
 // Estructura de los simbolos de funciones
 typedef struct sfun SFUN;
-struct fun
+struct sfun
 {
    unsigned char name[50];
    char value_type;
@@ -65,6 +65,10 @@ ASR * new_tree_node(int, unsigned char [], char, int, float, ASR *, ASR *, ASR *
 
 char revision_tipos(ASR *);
 void assign_type(LST *, int);
+void assign_type_f(LST *, int);
+void assign_type_fvar(LST *, int);
+
+
 void tabla_simb();
 void tabla_simbf();
 void tabla_simbf_var();
@@ -127,7 +131,7 @@ SFUN *tablefvar[N]; // tabla hash de funciones
    char yytipo;
 }
 
-%token END PROGRAM BEGINI IF ENDIF ELSE FOR STEP DO WHILE READ PRINT SUMA RESTA MULTI DIVIDE PARENI PAREND EQUAL MENORQ MAYORQ MENORIQ MAYORIQ PCOMA DOSPUNTOS OTRO INT FLOAT CONS VAR PYC REPEAT UNTIL ASSIGN THEN FUN CALL
+%token END PROGRAM BEGINI IF ENDIF ELSE FOR STEP DO WHILE READ PRINT SUMA RESTA MULTI DIVIDE PARENI PAREND EQUAL MENORQ MAYORQ MENORIQ MAYORIQ PCOMA DOSPUNTOS COMA OTRO INT FLOAT CONS VAR PYC REPEAT UNTIL ASSIGN THEN FUN CALL
 %precedence THEN
 %precedence ELSE
 %token<yyint> NINT
@@ -135,7 +139,7 @@ SFUN *tablefvar[N]; // tabla hash de funciones
 %token<yyid> IDF
 %type <yytipo> type
 %type <yynodo> stmt stmt_lst expr term factor expresion opt_stmts  opt_exprs expr_lst         
-%type <yylista> opt_decls decl_lst decl     oparams params oparam         opt_fun_decls fun_decls fun_decl
+%type <yylista> opt_decls decl_lst decl     oparams params param         opt_fun_decls fun_decls fun_decl
 %start prog
 
 %%
@@ -173,7 +177,7 @@ type : INT                                                 { $$ = 'i'; }
 
 
 //declaracion de funciones
-opt_fun_decls: //palabra vacía  { $$ = NULL; }
+opt_fun_decls: { $$ = NULL; }//palabra vacía  
                | fun_decls  { $$ = $1; };
 
 
@@ -196,7 +200,7 @@ fun_decl : FUN IDF PARENI oparams PAREND DOSPUNTOS type opt_decls BEGINI opt_stm
    } 
 
    insert_table_node_f(n2); 
-   assign_type_f(n, $7);
+   assign_type_f(v, $7);
    $$ = v;
 
    }
@@ -211,7 +215,7 @@ fun_decl : FUN IDF PARENI oparams PAREND DOSPUNTOS type opt_decls BEGINI opt_stm
             yyerror("Esta variable ya existe"); 
          } 
          insert_table_node_f(n2); 
-         assign_type_f(n, $7);
+         assign_type_f(v, $7);
          $$ = v;
 
 
@@ -219,19 +223,19 @@ fun_decl : FUN IDF PARENI oparams PAREND DOSPUNTOS type opt_decls BEGINI opt_stm
    };
 
 oparams: {$$ = NULL;} 
-   | params {$$ = $1};
+   | params {$$ = $1;};
 
 
 params: 
          param COMA params {cola($1) -> sig = $3; $$ = $1;}
-         |param{$$ = $1};
+         |param{$$ = $1;};
 
 param: IDF DOSPUNTOS type {
 
       
-      LST *n3 = nuevo_nodo_lista($2, $4, NULL); 
+      LST *n3 = nuevo_nodo_lista($1, $3, NULL); 
 
-      SFUN *n4 = nuevo_nodo_tabla_fvar($2, $4); 
+      SFUN *n4 = nuevo_nodo_tabla_fvar($1, $3); 
       if (buscar_simbolo_fvar($1) != NULL){ 
          yyerror("Esta variable ya existe"); 
       } 
@@ -308,12 +312,12 @@ stmt_lst : stmt                                                { $$ = $1; }
 
 expr : expr SUMA term                                          { char c1 = revision_tipos($1); if (c1 != revision_tipos($3)) { yyerror("Tipos incompatibles"); } $$ = new_tree_node(SUMA, "+", c1, 0, 0.0, $1, $3, NULL); }
      | expr RESTA term                                         { char c1 = revision_tipos($1); if (c1 != revision_tipos($3)) { yyerror("Tipos incompatibles"); } $$ = new_tree_node(RESTA, "-", c1, 0, 0.0, $1, $3, NULL); }
-     | term 
+     | term {$$ = $1;}
 ;
 
 term : term MULTI factor                                       { char c1 = revision_tipos($1); if (c1 != revision_tipos($3)) { yyerror("Tipos incompatibles"); } $$ = new_tree_node(MULTI, "*", c1, 0, 0.0, $1, $3, NULL); }
      | term DIVIDE factor                                      { char c1 = revision_tipos($1); if (c1 != revision_tipos($3)) { yyerror("Tipos incompatibles"); } $$ = new_tree_node(DIVIDE, "/", c1, 0, 0.0, $1, $3, NULL); }
-     | factor
+     | factor       {$$ = $1;}
 ;
 
 factor : PARENI expr PAREND                                    { $$ = $2; }
@@ -325,12 +329,12 @@ factor : PARENI expr PAREND                                    { $$ = $2; }
 
 ;
 
-opt_exprs: {$$ = NULL}
-| expr_lst {$$ = $1};
+opt_exprs: {$$ = NULL;}
+| expr_lst {$$ = $1;};
 
 
 expr_lst: expr COMA expr_lst {$1 -> sig = $3, $$ = $1;}
-         expr {$$ = $1};
+         | expr {$$ = $1;};
 
 expresion : expr MENORQ expr                                    { char c1 = revision_tipos($1); if (c1 != revision_tipos($3)) { yyerror("Tipos incompatibles"); } $$ = new_tree_node(MENORQ, "<", c1, 0, 0.0, $1, $3, NULL); }
           | expr MAYORQ expr                                    { char c1 = revision_tipos($1); if (c1 != revision_tipos($3)) { yyerror("Tipos incompatibles"); } $$ = new_tree_node(MAYORQ, ">", c1, 0, 0.0, $1, $3, NULL); }
