@@ -270,7 +270,7 @@ stmt :  IDF ASSIGN expr
 
             $$ = new_tree_node(PYC, ";", '0', 0, 0.0, 
             new_tree_node(FOR, "for", '0', 0, 0.0, 
-            new_tree_node(ASSIGN, "assign", '0', 0, 0.0, new_tree_node(VAR, $1, '0', 0, 0.0, NULL, NULL, NULL), $3, $6),$8,$10),NULL,NULL);
+            new_tree_node(ASSIGN, "assign", '0', 0, 0.0, new_tree_node(VAR, $2, '0', 0, 0.0, NULL, NULL, NULL), $4, $6),$8,$10),NULL,NULL);
            
            }
            
@@ -604,7 +604,7 @@ char revision_tipos(ASR * root)
       return n -> value_type; // Si es un numero constante
    }
    else if (n -> node_type == CALL) { 
-      return search_node_tree(n -> name) -> value_type; 
+      return search_node_tree(tree_fun,n -> name) -> value_type; 
    } // llamada a función
 
 
@@ -653,19 +653,7 @@ unsigned int hash(unsigned char w[])
 }
 
 
-SFUN * buscar_simbolo_fvar(unsigned char name[])
-{
-   SFUN *n = tablefvar[hash(name)];
-   while (n != NULL) 
-   {
-      if (strcmp(n -> name, name) == 0) { 
-      return n; 
-      } 
-      n = n -> sig;
-   }
 
-   return NULL; 
-}
 
 ASR * search_node_tree(ASR * root, unsigned char name[]){
    
@@ -951,15 +939,15 @@ void check_tree(ASR * root)
       if (n -> node_type == FOR){
 
          check_tree(n -> izquierda);
-         if (expr_value_type(n -> izquierda) == 'i') // Int type
+         if (expr_value_type(n -> izquierda -> izquierda) == 'i') // Int type
          {
-               for (int i = expr_int_value(n -> izquierda); i <= expr_int_value(n -> izquierda -> izquierda); i = i + expr_int_value(n -> derecha) )
+               for (int i = expr_int_value(n -> izquierda-> izquierda); i <= expr_int_value(n -> izquierda -> sig); i = i + expr_int_value(n -> derecha) )
                      {
                              check_tree(n -> sig); 
                      }
          }
          else{
-                  for (int i = expr_float_value(n -> izquierda); i <= expr_float_value(n -> izquierda -> izquierda); i = i + expr_float_value(n -> derecha) )
+                  for (float j = expr_float_value(n -> izquierda-> izquierda); j <= expr_float_value(n -> izquierda -> sig); j = j + expr_float_value(n -> derecha) )
                      {
                              check_tree(n -> sig); 
                      }  
