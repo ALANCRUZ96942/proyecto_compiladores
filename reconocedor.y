@@ -250,8 +250,7 @@ stmt :  IDF ASSIGN expr
       } if (n -> value_type != revision_tipos($3)) { 
          yyerror("Tipos incompatibles"); 
       } 
-      
-      $$ = new_tree_node(PYC, ";", '0', 0, 0.0, new_tree_node(ASSIGN, "assign", '0', 0, 0.0, new_tree_node(VAR, $1, n -> value_type, n -> int_value, n -> float_value, NULL, NULL, NULL), $3, NULL), NULL, NULL); }
+      $$ = new_tree_node(PYC, ";", '0', 0, 0.0, new_tree_node(ASSIGN, "assign", '0', 0, 0.0, new_tree_node(VAR, $1, '0', 0, 0.0, NULL, NULL, NULL), $3, NULL), NULL, NULL); }
 
      | IF expresion THEN stmt                                      { $$ = new_tree_node(PYC, ";", '0', 0, 0.0, new_tree_node(IF, "if", '0', 0, 0.0, $2, $4, NULL), NULL, NULL); }
      | IF expresion THEN stmt ELSE stmt                            { $$ = new_tree_node(PYC, ";", '0', 0, 0.0, new_tree_node(IF, "if", '0', 0, 0.0, $2, $4, $6), NULL, NULL); }
@@ -636,8 +635,7 @@ void check_tree(ASR * root)
       // tipo asignacion
       if (n -> node_type == ASSIGN)
       {
-         //SYM *t = buscar_simbolo(n -> izquierda -> name); // nombre de la variable en la tabla de simbolos, se busca pro nombre
-         ASR*t = n -> izquierda; 
+         SYM *t = buscar_simbolo(n -> izquierda -> name); // nombre de la variable en la tabla de simbolos, se busca pro nombre
          if (t -> value_type == 'i') { t -> int_value = expr_int_value(n -> derecha); } // Int value
          else { t -> float_value = expr_float_value(n -> derecha); } // Float value
       }
