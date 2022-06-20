@@ -1,6 +1,7 @@
 program ocho
   var x : int;
-  var y : int
+  var y : int;
+  var z: int
 begin
   x <- 3;
   y <- 4;

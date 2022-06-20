@@ -1,7 +1,6 @@
 program cinco
-   var x : int;
-   var y: int
+   var x : int
 begin
    for x <- -10 until 20 step 1 do
-     print x+1
+     print x
 end

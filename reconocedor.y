@@ -156,7 +156,7 @@ decl_lst : decl PCOMA decl_lst                                 { $1 -> sig = $3,
 
 decl : VAR IDF DOSPUNTOS type     {
 
-   if (amb = 0){
+   if (amb == 0){
       //LST *n = nuevo_nodo_lista($2, $4, NULL); 
 
       SYM *n2 = nuevo_nodo_tabla($2, $4); 
@@ -190,7 +190,7 @@ type : INT                                                 { $$ = 'i'; }
 
 //declaracion de funciones
 opt_fun_decls: { $$ = NULL; amb++;}//palabra vacía  
-               | fun_decls  { $$ = $1; amb++};
+               | fun_decls  { $$ = $1; amb++;};
 
 
 fun_decls : fun_decls fun_decl          { $1 -> sig = $2, $$ = $1; }//{ cola($1) -> sig = $2; $$ = $1; }
@@ -211,7 +211,7 @@ fun_decl : FUN IDF PARENI oparams PAREND DOSPUNTOS type opt_decls BEGINI opt_stm
   // list_fun_par =  $8;
 
   $$ = new_tree_node(FUN, $2, $7, 0, 0.0, $4 ,
-  new_tree_node(EXEC, $2, $7, 0, 0.0, $8 ,$10,NULL,n2),n2); }
+  new_tree_node(EXEC, $2, $7, 0, 0.0, $8 ,$10,NULL,n2),NULL,n2); }
 
    |FUN IDF PARENI oparams PAREND DOSPUNTOS type PCOMA{
          

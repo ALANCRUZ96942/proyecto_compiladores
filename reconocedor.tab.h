@@ -94,9 +94,10 @@ extern int yydebug;
     CALL = 295,                    /* CALL  */
     RETRN = 296,                   /* RETRN  */
     PARS = 297,                    /* PARS  */
-    NINT = 298,                    /* NINT  */
-    NFLOAT = 299,                  /* NFLOAT  */
-    IDF = 300                      /* IDF  */
+    EXEC = 298,                    /* EXEC  */
+    NINT = 299,                    /* NINT  */
+    NFLOAT = 300,                  /* NFLOAT  */
+    IDF = 301                      /* IDF  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -105,10 +106,9 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 123 "reconocedor.y"
+#line 125 "reconocedor.y"
 
    struct asr * yynodo;
-   struct lst * yylista;
    unsigned char yyid[50];
    int yyint;
    float yyfloat;
