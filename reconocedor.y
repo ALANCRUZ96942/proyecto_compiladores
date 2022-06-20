@@ -66,8 +66,6 @@ ASR * search_node_tree(ASR *,unsigned char []);
 char revision_tipos(ASR *);
 void assign_type(LST *, int);
 
-void assign_type_fvar(LST *, int);
-
 
 void tabla_simb();
 void tabla_simbf();
@@ -88,13 +86,11 @@ SFUN * buscar_simbolo_f(unsigned char []);
 void insert_table_node_f(SFUN *);
 
 
-SFUN * nuevo_nodo_tabla_fvar(unsigned char [], int);
-SFUN * buscar_simbolo_fvar(unsigned char []);
-void insert_table_node_fvar(SFUN *);
 
-SFUN * nuevo_nodo_tabla_fpar(unsigned char [], int);
-SFUN * buscar_simbolo_fpar(unsigned char []);
-void insert_table_node_fpar(SFUN *);
+
+SYM * nuevo_nodo_tabla_fpar(unsigned char [], int);
+SYM * buscar_simbolo_fpar(unsigned char []);
+void insert_table_node_fpar(SYM *);
 
 void imprimir_sym();
 
@@ -127,8 +123,9 @@ LST *list_fun_var = NULL; // lista de variables locales de funciones
 
 SYM *table[N]; // tabla hash de simbolos globales
 SFUN *tablef[N]; // tabla hash de funciones
-SFUN *tablefvar[N]; // tabla hash de funciones
-SFUN *tablefpar[N]; // tabla hash de funciones
+//SFUN *tablefvar[N]; // tabla hash de funciones
+
+SYM *tablefpar[N]; // tabla hash de funciones
 
 %}
 
@@ -205,6 +202,7 @@ fun_decl : FUN IDF PARENI oparams PAREND DOSPUNTOS type opt_decls BEGINI opt_stm
    } 
 
    insert_table_node_f(n2); 
+   list_fun_var =  $8;
 
   $$ = new_tree_node(FUN, $2, $7, 0, 0.0, $4 ,$10, NULL); }
 
@@ -230,7 +228,7 @@ params:
 
 param: IDF DOSPUNTOS type {
 
-      SFUN *n4 = nuevo_nodo_tabla_fpar($1, $3); 
+      SYM *n4 = nuevo_nodo_tabla_fpar($1, $3); 
       if (buscar_simbolo_fpar($1) != NULL){ 
          yyerror("Esta variable ya existe"); 
       } 
@@ -461,9 +459,9 @@ SFUN * buscar_simbolo_f(unsigned char name[])
 
 /*metodos para parametros de funciones*/
 //tabla de parametros de funciones
-SFUN * nuevo_nodo_tabla_fpar(unsigned char name[], int type)
+SYM * nuevo_nodo_tabla_fpar(unsigned char name[], int type)
 {
-   SFUN * aux = (SFUN *) malloc(sizeof(SFUN)); //nodo de simbolo
+   SYM * aux = (SYM *) malloc(sizeof(SYM)); //nodo de simbolo
    strcpy(aux -> name, name);
    aux -> value_type = type;
 
@@ -472,13 +470,13 @@ SFUN * nuevo_nodo_tabla_fpar(unsigned char name[], int type)
 
 
 
-void insert_table_node_fpar(SFUN *t)
+void insert_table_node_fpar(SYM *t)
 {
    unsigned int i = hash(t -> name);
    if (tablefpar[i] == NULL) { tablefpar[i] = t; }
    else
    {
-      SFUN *n = tablefpar[i];
+      SYM *n = tablefpar[i];
       while (n -> sig != NULL) { 
       n = n -> sig; 
       }
@@ -488,9 +486,9 @@ void insert_table_node_fpar(SFUN *t)
 
 
 // busqueda EN SIMBOLOS de funciones
-SFUN * buscar_simbolo_fpar(unsigned char name[])
+SYM * buscar_simbolo_fpar(unsigned char name[])
 {
-   SFUN *n = tablefpar[hash(name)];
+   SYM *n = tablefpar[hash(name)];
    while (n != NULL) 
    {
       if (strcmp(n -> name, name) == 0) { 
@@ -502,64 +500,6 @@ SFUN * buscar_simbolo_fpar(unsigned char name[])
    return NULL; 
 }
 
-
-
-
-
-
-/*metodos para variables de funciones*/
-//tabla de variables de funciones
-SFUN * nuevo_nodo_tabla_fvar(unsigned char name[], int type)
-{
-   SFUN * aux = (SFUN *) malloc(sizeof(SFUN)); //nodo de simbolo
-   strcpy(aux -> name, name);
-   aux -> value_type = type;
-
-   return aux;
-}
-
-
-// asignacion de tipo en funciones
-void assign_type_fvar(LST * head, int type)
-{
-   LST *n = head; 
-   while (n != NULL) 
-   {
-      SFUN *t = buscar_simbolo_fvar(n -> name);
-      t -> value_type = type;
-      n = n -> sig;
-   }
-}
-
-void insert_table_node_fvar(SFUN *t)
-{
-   unsigned int i = hash(t -> name);
-   if (tablefvar[i] == NULL) { tablefvar[i] = t; }
-   else
-   {
-      SFUN *n = tablefvar[i];
-      while (n -> sig != NULL) { 
-      n = n -> sig; 
-      }
-      n -> sig = t;
-   }
-}
-
-
-// busqueda EN SIMBOLOS de var fun
-SFUN * buscar_simbolo_fvar(unsigned char name[])
-{
-   SFUN *n = tablefvar[hash(name)];
-   while (n != NULL) 
-   {
-      if (strcmp(n -> name, name) == 0) { 
-      return n; 
-      } 
-      n = n -> sig;
-   }
-
-   return NULL; 
-}
 
 
 
@@ -1030,9 +970,9 @@ int expr_int_value(ASR * root)
    else if (root -> node_type == PARS) { return buscar_simbolo_fpar(root -> name) -> int_value; } // Variable
    else if (root -> node_type == CALL) {
       
-      ASR * global_par = root -> izquierda;
-      ASR * aux = search_node_tree(tree_fun, root -> name); 
-   
+      ASR * global_par = root -> izquierda;   
+      ASR * aux = search_node_tree(tree_fun, root -> name);   
+
      
       check_tree(aux);
   //   ASR * valor_ret = do_fun_tree(root -> name, aux -> derecha);
