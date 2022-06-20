@@ -141,7 +141,7 @@ SFUN *tablefpar[N]; // tabla hash de funciones
    char yytipo;
 }
 
-%token END PROGRAM BEGINI IF ENDIF ELSE FOR STEP DO WHILE READ PRINT SUMA RESTA MULTI DIVIDE PARENI PAREND EQUAL MENORQ MAYORQ MENORIQ MAYORIQ PCOMA DOSPUNTOS COMA OTRO INT FLOAT CONS VAR PYC REPEAT UNTIL ASSIGN THEN FUN CALL RETRN
+%token END PROGRAM BEGINI IF ENDIF ELSE FOR STEP DO WHILE READ PRINT SUMA RESTA MULTI DIVIDE PARENI PAREND EQUAL MENORQ MAYORQ MENORIQ MAYORIQ PCOMA DOSPUNTOS COMA OTRO INT FLOAT CONS VAR PYC REPEAT UNTIL ASSIGN THEN FUN CALL RETRN PARS
 %precedence THEN
 %precedence ELSE
 %token<yyint> NINT
@@ -205,6 +205,7 @@ fun_decl : FUN IDF PARENI oparams PAREND DOSPUNTOS type opt_decls BEGINI opt_stm
    } 
 
    insert_table_node_f(n2); 
+
   $$ = new_tree_node(FUN, $2, $7, 0, 0.0, $4 ,$10, NULL); }
 
    |FUN IDF PARENI oparams PAREND DOSPUNTOS type PCOMA{
@@ -235,7 +236,7 @@ param: IDF DOSPUNTOS type {
       } 
       insert_table_node_fpar(n4); 
 
-      $$ = new_tree_node(VAR, $1, $3, 0, 0.0, NULL ,NULL, NULL);
+      $$ = new_tree_node(PARS, $1, $3, 0, 0.0, NULL ,NULL, NULL);
 
 };
 
@@ -278,7 +279,7 @@ stmt :  IDF ASSIGN expr
 
      | READ IDF                                            { SYM *n = buscar_simbolo($2); if (n == NULL) { yyerror("Variable no declarada"); } $$ = new_tree_node(PYC, ";", '0', 0, 0.0, new_tree_node(READ, "read", '0', 0, 0.0, new_tree_node(VAR, $2, '0', 0, 0.0, NULL, NULL, NULL), NULL, NULL), NULL, NULL); }
      | PRINT expr                                          { $$ = new_tree_node(PYC, ";", '0', 0, 0.0, new_tree_node(PRINT, "print", '0', 0, 0.0, $2, NULL, NULL), NULL, NULL); }
-     | RETRN expr                                          { $$ = new_tree_node(PYC, ";", '0', 0, 0.0, new_tree_node(RETRN, "return", '0', 0, 0.0, $2, NULL, NULL), NULL, NULL); }
+     | RETRN expr                                          { char c = expr_value_type($2); $$ = new_tree_node(RETRN, "return", c, 0, 0.0, $2, NULL, NULL); }
      | BEGINI opt_stmts END                                { $$ = $2; }
 ;
 
@@ -305,7 +306,7 @@ factor : PARENI expr PAREND                                    { $$ = $2; }
        | IDF                                               { if (buscar_simbolo($1) == NULL) { yyerror("Variable no declarada."); } $$ = new_tree_node(VAR, $1, '0', 0, 0.0, NULL, NULL, NULL); }
        | NINT                                                  { $$ = new_tree_node(CONS, "int", 'i', $1, 0, NULL, NULL, NULL); }
        | NFLOAT                                                  { $$ = new_tree_node(CONS, "float", 'f', 0, $1, NULL, NULL, NULL); }
-       | IDF PARENI opt_exprs PAREND                          { if (buscar_simbolo_f($1) == NULL) { yyerror("Variable no declarada."); } 
+       | IDF PARENI opt_exprs PAREND                          { if (buscar_simbolo_f($1) == NULL) { yyerror("función no declarada."); } 
                                                                $$ = new_tree_node(CALL, $1, '0', 0, 0.0, $3, NULL, NULL); }
 
 ;
@@ -684,10 +685,10 @@ void check_tree(ASR * root)
    ASR *parent = root; // ; node
 
    // NULL
-   if (parent == NULL) { return; }
+   if (parent == NULL || parent == RETRN) { return; }
 
    // Bloque punto y coma
-   if (parent -> node_type == PYC)
+   if (parent -> node_type == PYC) 
    {
       ASR *n = parent -> izquierda; //nodo por izquierda
 
@@ -972,6 +973,41 @@ void check_tree(ASR * root)
          else { printf("%f\n", expr_float_value(n -> izquierda)); } // Float type
       }
    }
+   
+   
+   if (parent -> node_type == FUN) { 
+         ASR *n = parent -> derecha;
+
+      if (expr_value_type(parent) == 'i'){
+         //se deben igual los parametros de la funcion a las variables globales
+            
+            if( n -> node_type == RETRN ){
+               if(expr_value_type(n) == 'i'){
+               parent -> int_value = expr_int_value(n -> izquierda);
+               }
+               else{
+                  yyerror("Error, el numero retornado es un float, se esperaba int")
+               }
+            }
+            check_tree(n);
+         
+
+      }
+      else{
+         if( n -> node_type == RETRN ){
+            if(expr_value_type(n) == 'f'){
+            parent -> float_value = expr_float_value(n -> izquierda);
+            }
+            else{
+               yyerror("Error, el numero retornado es un int, se esperaba float")
+            }
+         }
+         check_tree(n);
+      }
+   }
+   
+
+
    check_tree(parent -> sig);
 }
 
@@ -991,9 +1027,14 @@ int expr_int_value(ASR * root)
    }
    else if (root -> node_type == CONS) { return root -> int_value; } // Constant
    else if (root -> node_type == VAR) { return buscar_simbolo(root -> name) -> int_value; } // Variable
+   else if (root -> node_type == PARS) { return buscar_simbolo_fpar(root -> name) -> int_value; } // Variable
    else if (root -> node_type == CALL) {
+      
+      ASR * global_par = root -> izquierda;
       ASR * aux = search_node_tree(tree_fun, root -> name); 
+   
      
+      check_tree(aux);
   //   ASR * valor_ret = do_fun_tree(root -> name, aux -> derecha);
       return aux -> int_value; } // Variable
 }
@@ -1016,10 +1057,13 @@ float expr_float_value(ASR * root)
    }
    else if (root -> node_type == CONS) { return root -> float_value; } // Constant
    else if (root -> node_type == VAR) { return buscar_simbolo(root -> name) -> float_value; } // Variable
+   else if (root -> node_type == PARS) { return buscar_simbolo_fpar(root -> name) -> float_value; } // Variable
    else if (root -> node_type == CALL) {
 
-            ASR * aux = search_node_tree(tree_fun, root -> name); 
-     
+      ASR * aux = search_node_tree(tree_fun, root -> name); 
+      check_tree(aux);
+
+
       //ASR * valor_ret = do_fun_tree(root -> name, aux -> derecha);
       return aux -> float_value; } // Variable
 
