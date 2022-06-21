@@ -10,6 +10,7 @@
 // Estructura de los simbolos
 int amb = 0;
 int amb2 = 0;
+int retorno = 0;
 typedef struct sym SYM;
 struct sym
 {
@@ -632,7 +633,7 @@ void check_tree(ASR * root)
    ASR *parent = root; // ; node
 
    // NULL
-   if (parent == NULL || parent -> node_type  == RETRN) { return; }
+   if (parent == NULL ) { return; }
 
    // Bloque punto y coma
    if (parent -> node_type == PYC) 
@@ -922,9 +923,22 @@ void check_tree(ASR * root)
       }
    }
    
-
+   if (parent -> node_type == EXEC)
+      {
+            check_tree(parent -> derecha);
+      }
    
-
+   if (parent -> node_type == RETRN)
+      {
+         if (expr_value_type(parent -> izquierda) == 'i'){
+                retorno = expr_int_value(parent -> izquierda);
+                return;
+          }
+          else{
+                retorno = expr_float_value(parent -> izquierda);
+                return;
+          }
+      }
 
    check_tree(parent -> sig);
 }
@@ -951,18 +965,10 @@ int expr_int_value(ASR * root)
       ASR * global_par = root -> izquierda;   
 
       ASR * aux =  search_node_tree(tree_fun, root -> simb -> name);
-      if(aux -> derecha -> node_type == RETRN){
-      check_tree(aux);
-      return expr_int_value(aux -> derecha -> derecha);
-      }
-      else{
-         check_tree(aux);
-         return 0;
-      }
 
-   }
-  //   ASR * valor_ret = do_fun_tree(root -> name, aux -> derecha);
-      //return aux -> int_value; } // Variable
+     check_tree(aux -> derecha);
+     return retorno;
+  
 }
 
 
@@ -988,15 +994,11 @@ float expr_float_value(ASR * root)
       
       ASR * global_par = root -> izquierda;   
 
-      ASR * aux =  root -> derecha;  
-      if(aux -> derecha -> node_type == RETRN){
-      check_tree(aux);
-      return expr_float_value(aux -> derecha -> derecha);
-      }
-      else{
-         check_tree(aux);
-         return 0.0;
-      }
+      ASR * aux =  search_node_tree(tree_fun, root -> simb -> name);
+      
+
+     check_tree(aux -> derecha);
+     return retorno;
 
    }
 

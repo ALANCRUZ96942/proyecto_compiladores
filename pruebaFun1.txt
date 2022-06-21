@@ -1,5 +1,6 @@
 program unofun
-  var x : int
+  var x : int;
+var z : int
 
   fun ff(x : int) : int
     var y : int
@@ -8,7 +9,17 @@ program unofun
     return x
   end
 
+  fun doble(l : int) : int
+    var k : int
   begin
-     x <- 2;
-     print x
+    k <- 2;
+    l  <- doble(5);
+    return k
+  end
+
+  begin
+     x <- ff(3);
+     print x;
+     z <- doble(3);
+     print z
   end

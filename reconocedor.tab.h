@@ -106,7 +106,7 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 126 "reconocedor.y"
+#line 127 "reconocedor.y"
 
    struct asr * yynodo;
    unsigned char yyid[50];
