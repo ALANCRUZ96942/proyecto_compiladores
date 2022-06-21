@@ -122,6 +122,8 @@ SYM *tablef[N]; // tabla hash de funciones
 
 SYM *tablefpar[N]; // tabla hash de funciones
 
+void igualar_params(ASR*,ASR*);
+
 %}
 
 %union{
@@ -619,7 +621,22 @@ ASR * search_node_tree(ASR * root, unsigned char name[]){
 }
 
 
+void igualar_params(ASR* in_par,ASR* globales){
+   ASR * aux = globales;
+   ASR * entradas = in_par;
+   while((globales != NULL && entradas != NULL) && revision_tipos(entradas) == revision_tipos(in_par) ){
 
+      if(revision_tipos(globales) == 'i'){
+            globales  -> simb -> int_value = expr_int_value(in_par);
+      }
+      else{
+         globales  -> simb -> float_value = expr_float_value(in_par);
+      }
+      globales = globales -> sig;
+      int_value = int_value -> sig;
+   }
+   yyerror("Tipos incompatibles o exceso de parametros ingresados"); 
+}
 
 
 
@@ -965,7 +982,7 @@ int expr_int_value(ASR * root)
       ASR * global_par = root -> izquierda;   
 
       ASR * aux =  search_node_tree(tree_fun, root -> simb -> name);
-
+     igualar_params(global_par,global_par -> izquierda);
      check_tree(aux -> derecha);
      return retorno;
   
@@ -996,7 +1013,7 @@ float expr_float_value(ASR * root)
 
       ASR * aux =  search_node_tree(tree_fun, root -> simb -> name);
       
-
+     igualar_params(global_par,global_par -> izquierda);
      check_tree(aux -> derecha);
      return retorno;
 
