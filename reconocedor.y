@@ -9,6 +9,7 @@
 #define N 5000 //elementos en la tabla hash
 // Estructura de los simbolos
 int amb = 0;
+int amb2 = 0;
 typedef struct sym SYM;
 struct sym
 {
@@ -252,8 +253,13 @@ param: IDF DOSPUNTOS type {
 
 stmt :  IDF ASSIGN expr
 
-    { 
-      SYM *n = buscar_simbolo($1); 
+      { 
+         if (amb == 0){
+         SYM *n = buscar_simbolo_fpar($1); 
+      }else{
+            SYM *n = buscar_simbolo($1); 
+      }
+      
       if (n == NULL) { 
          yyerror("Variable no declarada"); 
       } if (n -> value_type != revision_tipos($3)) { 
@@ -268,7 +274,9 @@ stmt :  IDF ASSIGN expr
 
            | FOR IDF ASSIGN expr UNTIL expr STEP expr DO stmt
            
-           {SYM *n = buscar_simbolo($2); 
+           {
+         
+           if (amb == 0){SYM *n = buscar_simbolo_fpar($2); }else{SYM *n = buscar_simbolo($2); }
            if (n == NULL) { 
            yyerror("Variable no declarada"); 
            } 
@@ -284,7 +292,7 @@ stmt :  IDF ASSIGN expr
            }
            
 
-     | READ IDF                                            { SYM *n = buscar_simbolo($2); if (n == NULL) { yyerror("Variable no declarada"); } $$ = new_tree_node(PYC, ";", '0', 0, 0.0, new_tree_node(READ, "read", '0', 0, 0.0, new_tree_node(VAR, $2, '0', 0, 0.0, NULL, NULL, NULL,n), NULL, NULL,NULL), NULL, NULL,NULL); }
+     | READ IDF                                            {            if (amb == 0){SYM *n = buscar_simbolo_fpar($2); }else{SYM *n = buscar_simbolo($2); }if (n == NULL) { yyerror("Variable no declarada"); } $$ = new_tree_node(PYC, ";", '0', 0, 0.0, new_tree_node(READ, "read", '0', 0, 0.0, new_tree_node(VAR, $2, '0', 0, 0.0, NULL, NULL, NULL,n), NULL, NULL,NULL), NULL, NULL,NULL); }
      | PRINT expr                                          { $$ = new_tree_node(PYC, ";", '0', 0, 0.0, new_tree_node(PRINT, "print", '0', 0, 0.0, $2, NULL, NULL,NULL), NULL, NULL,NULL); }
      | RETRN expr                                          { char c = expr_value_type($2); $$ = new_tree_node(RETRN, "return", c, 0, 0.0, $2, NULL, NULL,NULL); }
      | BEGINI opt_stmts END                                { $$ = $2; }
@@ -310,10 +318,10 @@ term : term MULTI factor                                       { char c1 = revis
 ;
 
 factor : PARENI expr PAREND                                    { $$ = $2; }
-       | IDF                                               { SYM*n = buscar_simbolo($1); if (n == NULL) { yyerror("Variable no declarada."); } $$ = new_tree_node(VAR, $1, '0', 0, 0.0, NULL, NULL, NULL,n); }
+       | IDF                                               {  if (amb == 0){SYM *n = buscar_simbolo_fpar($1); }else{SYM *n = buscar_simbolo($1); }  if (n == NULL) { yyerror("Variable no declarada."); } $$ = new_tree_node(VAR, $1, '0', 0, 0.0, NULL, NULL, NULL,n); }
        | NINT                                                  { $$ = new_tree_node(CONS, "int", 'i', $1, 0, NULL, NULL, NULL, NULL); }
        | NFLOAT                                                  { $$ = new_tree_node(CONS, "float", 'f', 0, $1, NULL, NULL, NULL, NULL); }
-       | IDF PARENI opt_exprs PAREND                          {SYM*n = buscar_simbolo($1); if (n == NULL) { yyerror("función no declarada."); } 
+       | IDF PARENI opt_exprs PAREND                          { if (amb == 0){SYM *n = buscar_simbolo_fpar($1); }else{SYM *n = buscar_simbolo($1); }  if (n == NULL) { yyerror("función no declarada."); } 
                                                                $$ = new_tree_node(CALL, $1, '0', 0, 0.0, $3, NULL, NULL,n); }
 
 ;
