@@ -1429,7 +1429,7 @@ yyreduce:
 
    SYM *n2 = nuevo_nodo_tabla_f((yyvsp[-9].yyid), (yyvsp[-4].yytipo)); 
    if (buscar_simbolo_f((yyvsp[-9].yyid)) != NULL){
-       yyerror("Esta variable ya existe"); 
+       yyerror("Esta funcion ya existe"); 
    } 
 
    insert_table_node_f(n2); 
@@ -1675,8 +1675,8 @@ yyreduce:
 
   case 45: /* factor: IDF PARENI opt_exprs PAREND  */
 #line 327 "reconocedor.y"
-                                                              {  SYM * n = NULL;if (amb == 0){n = buscar_simbolo_fpar((yyvsp[-3].yyid)); }else{n = buscar_simbolo((yyvsp[-3].yyid)); }  if (n == NULL) { yyerror("función no declarada."); } 
-                                                               (yyval.yynodo) = new_tree_node(CALL, (yyvsp[-3].yyid), '0', 0, 0.0, (yyvsp[-1].yynodo), NULL, NULL,n); }
+                                                              {  SYM * n = buscar_simbolo_f((yyvsp[-3].yyid)); if (n == NULL) { yyerror("función no declarada."); } 
+         (yyval.yynodo) = new_tree_node(CALL, (yyvsp[-3].yyid), '0', 0, 0.0, (yyvsp[-1].yynodo),NULL, NULL,n); }
 #line 1681 "reconocedor.tab.c"
     break;
 
@@ -1948,7 +1948,9 @@ void main(int argc, char *argv[])
    
    tabla_simbf_par();
    yyparse();
+  
    check_tree(tree);
+   imprimir_sym();
    exit(0);
 }
 
@@ -1988,17 +1990,6 @@ SYM * nuevo_nodo_tabla(unsigned char name[], int type)
 }
 
 
-// asignacion de tipo
-/*void assign_type(LST * head, int type)
-{
-   LST *n = head;
-   while (n != NULL) 
-   {
-      SYM *t = buscar_simbolo(n -> name);
-      t -> value_type = type;
-      n = n -> sig;
-   }
-}*/
 
 void insert_table_node(SYM *t)
 {
@@ -2518,37 +2509,7 @@ void check_tree(ASR * root)
       }
    }
    
-   
-   if (parent -> node_type == FUN) { 
-         ASR *n = parent -> derecha;
 
-      if (expr_value_type(parent) == 'i'){
-         //se deben igual los parametros de la funcion a las variables globales
-            
-            if( n -> node_type == RETRN ){
-               if(expr_value_type(n) == 'i'){
-               parent -> int_value = expr_int_value(n -> izquierda);
-               }
-               else{
-                  yyerror("Error, el numero retornado es un float, se esperaba int");
-               }
-            }
-            check_tree(n);
-         
-
-      }
-      else{
-         if( n -> node_type == RETRN ){
-            if(expr_value_type(n) == 'f'){
-            parent -> float_value = expr_float_value(n -> izquierda);
-            }
-            else{
-               yyerror("Error, el numero retornado es un int, se esperaba float");
-            }
-         }
-         check_tree(n);
-      }
-   }
    
 
 
@@ -2575,12 +2536,20 @@ int expr_int_value(ASR * root)
    else if (root -> node_type == CALL) {
       
       ASR * global_par = root -> izquierda;   
-      ASR * aux = search_node_tree(tree_fun, root -> name);   
 
-     
+      ASR * aux =  search_node_tree(tree_fun, root -> simb -> name);
+      if(aux -> derecha -> node_type == RETRN){
       check_tree(aux);
+      return expr_int_value(aux -> derecha -> derecha);
+      }
+      else{
+         check_tree(aux);
+         return 0;
+      }
+
+   }
   //   ASR * valor_ret = do_fun_tree(root -> name, aux -> derecha);
-      return aux -> int_value; } // Variable
+      //return aux -> int_value; } // Variable
 }
 
 
@@ -2603,13 +2572,20 @@ float expr_float_value(ASR * root)
    else if (root -> node_type == VAR) {   return root -> simb -> float_value; }//buscar_simbolo(root -> name) -> float_value; } // Variable
    else if (root -> node_type == PARS) {  return root -> simb -> float_value;}// buscar_simbolo_fpar(root -> name) -> float_value; } // Variable
    else if (root -> node_type == CALL) {
+      
+      ASR * global_par = root -> izquierda;   
 
-      ASR * aux = search_node_tree(tree_fun, root -> name); 
+      ASR * aux =  root -> derecha;  
+      if(aux -> derecha -> node_type == RETRN){
       check_tree(aux);
+      return expr_float_value(aux -> derecha -> derecha);
+      }
+      else{
+         check_tree(aux);
+         return 0.0;
+      }
 
-
-      //ASR * valor_ret = do_fun_tree(root -> name, aux -> derecha);
-      return aux -> float_value; } // Variable
+   }
 
 }
 

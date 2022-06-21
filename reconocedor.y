@@ -204,7 +204,7 @@ fun_decl : FUN IDF PARENI oparams PAREND DOSPUNTOS type opt_decls BEGINI opt_stm
 
    SYM *n2 = nuevo_nodo_tabla_f($2, $7); 
    if (buscar_simbolo_f($2) != NULL){
-       yyerror("Esta variable ya existe"); 
+       yyerror("Esta funcion ya existe"); 
    } 
 
    insert_table_node_f(n2); 
@@ -324,8 +324,8 @@ factor : PARENI expr PAREND                                    { $$ = $2; }
        | IDF                                               {  SYM * n = NULL; if (amb == 0){n = buscar_simbolo_fpar($1); }else{n = buscar_simbolo($1); }  if (n == NULL) { yyerror("Variable no declarada."); } $$ = new_tree_node(VAR, $1, '0', 0, 0.0, NULL, NULL, NULL,n); }
        | NINT                                                  { $$ = new_tree_node(CONS, "int", 'i', $1, 0, NULL, NULL, NULL, NULL); }
        | NFLOAT                                                  { $$ = new_tree_node(CONS, "float", 'f', 0, $1, NULL, NULL, NULL, NULL); }
-       | IDF PARENI opt_exprs PAREND                          {  ASR * n  = search_node_tree(tree_fun, $1);  if (n == NULL) { yyerror("función no declarada."); } 
-                                                               $$ = new_tree_node(CALL, $1, '0', 0, 0.0, $3, n, NULL,n -> simb); }
+       | IDF PARENI opt_exprs PAREND                          {  SYM * n = buscar_simbolo_f($1); if (n == NULL) { yyerror("función no declarada."); } 
+         $$ = new_tree_node(CALL, $1, '0', 0, 0.0, $3,NULL, NULL,n); }
 
 ;
 
@@ -361,7 +361,9 @@ void main(int argc, char *argv[])
    
    tabla_simbf_par();
    yyparse();
+  
    check_tree(tree);
+   imprimir_sym();
    exit(0);
 }
 
@@ -948,8 +950,8 @@ int expr_int_value(ASR * root)
       
       ASR * global_par = root -> izquierda;   
 
-      ASR * aux =  root -> derecha;  
-      if(aux -> derecha -> node_type == RETURN){
+      ASR * aux =  search_node_tree(tree_fun, root -> simb -> name);
+      if(aux -> derecha -> node_type == RETRN){
       check_tree(aux);
       return expr_int_value(aux -> derecha -> derecha);
       }
@@ -987,7 +989,7 @@ float expr_float_value(ASR * root)
       ASR * global_par = root -> izquierda;   
 
       ASR * aux =  root -> derecha;  
-      if(aux -> derecha -> node_type == RETURN){
+      if(aux -> derecha -> node_type == RETRN){
       check_tree(aux);
       return expr_float_value(aux -> derecha -> derecha);
       }

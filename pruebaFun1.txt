@@ -1,15 +1,14 @@
 program unofun
   var x : int
 
-  fun ff(o : int,l:int) : int
-  var k : int
+  fun ff(x : int) : int
+    var y : int
   begin
-    return k
+    x <- 2;
+    return x
   end
 
-
-
   begin
-     k <- 3;
-     print k
+     x <- 2;
+     print x
   end
