@@ -8,6 +8,7 @@
 
 #define N 5000 //elementos en la tabla hash
 // Estructura de los simbolos
+int amb = 0;
 typedef struct sym SYM;
 struct sym
 {
@@ -101,14 +102,15 @@ void print_table();
 
 //inicializacion tabla y lista de simbolos
 ASR *tree = NULL;
-LST *list = NULL;
-
-LST *list_fun = NULL; // lista de id de funciones
 ASR * tree_fun = NULL;  //arbol de funcionalidades de funciones
 
+ASR *list = NULL;
+ASR *list_fun = NULL; // lista de id de funciones
+//ASR *list_fun_par = NULL; // lista de variables locales de funciones
 
-LST *list_fun_par = NULL; // lista de variables locales de funciones
-LST *list_fun_var = NULL; // lista de variables locales de funciones
+
+
+
 
 
 
@@ -122,22 +124,20 @@ SYM *tablefpar[N]; // tabla hash de funciones
 
 %union{
    struct asr * yynodo;
-   struct lst * yylista;
    unsigned char yyid[50];
    int yyint;
    float yyfloat;
    char yytipo;
 }
 
-%token END PROGRAM BEGINI IF ENDIF ELSE FOR STEP DO WHILE READ PRINT SUMA RESTA MULTI DIVIDE PARENI PAREND EQUAL MENORQ MAYORQ MENORIQ MAYORIQ PCOMA DOSPUNTOS COMA OTRO INT FLOAT CONS VAR PYC REPEAT UNTIL ASSIGN THEN FUN CALL RETRN PARS
+%token END PROGRAM BEGINI IF ENDIF ELSE FOR STEP DO WHILE READ PRINT SUMA RESTA MULTI DIVIDE PARENI PAREND EQUAL MENORQ MAYORQ MENORIQ MAYORIQ PCOMA DOSPUNTOS COMA OTRO INT FLOAT CONS VAR PYC REPEAT UNTIL ASSIGN THEN FUN CALL RETRN PARS EXEC
 %precedence THEN
 %precedence ELSE
 %token<yyint> NINT
 %token<yyfloat> NFLOAT
 %token<yyid> IDF
 %type <yytipo> type
-%type <yynodo> stmt stmt_lst expr term factor expresion opt_stmts  opt_exprs expr_lst       oparams params param            opt_fun_decls fun_decls fun_decl
-%type <yylista> opt_decls decl_lst decl    
+%type <yynodo> stmt stmt_lst expr term factor expresion opt_stmts  opt_exprs expr_lst       oparams params param            opt_fun_decls fun_decls fun_decl      opt_decls decl_lst decl
 %start prog
 
 %%
@@ -150,13 +150,14 @@ opt_decls : //palabra vacia
           | decl_lst                                           { $$ = $1; }
 ;
 
-decl_lst : decl PCOMA decl_lst                                 { cola($1) -> sig = $3; $$ = $1; }
+decl_lst : decl PCOMA decl_lst                                 { $1 -> sig = $3, $$ = $1; }
          | decl                                                { $$ = $1; }
 ;
 
 decl : VAR IDF DOSPUNTOS type     {
 
-      LST *n = nuevo_nodo_lista($2, $4, NULL); 
+   if (amb = 0){
+      //LST *n = nuevo_nodo_lista($2, $4, NULL); 
 
       SYM *n2 = nuevo_nodo_tabla($2, $4); 
       if (buscar_simbolo($2) != NULL){ 
@@ -164,10 +165,22 @@ decl : VAR IDF DOSPUNTOS type     {
       } 
       insert_table_node(n2); 
       
-      $$ = n;
-}
+      $$ = new_tree_node(VAR, $2, $4, 0, 0.0, NULL, NULL, NULL,n2);
+   }else{
+      
+      //LST *n = nuevo_nodo_lista($2, $4, NULL); 
 
-;
+      SYM *n2 = nuevo_nodo_tabla_fpar($2, $4); 
+      if (buscar_simbolo_fpar($2) != NULL){ 
+         yyerror("Esta variable ya existe"); 
+      } 
+      insert_table_node_fpar(n2); 
+      
+      $$ = new_tree_node(VAR, $2, $4, 0, 0.0, NULL, NULL, NULL,n2);
+   }
+
+
+};
 
 type : INT                                                 { $$ = 'i'; }
      | FLOAT                                               { $$ = 'f'; }
@@ -176,8 +189,8 @@ type : INT                                                 { $$ = 'i'; }
 
 
 //declaracion de funciones
-opt_fun_decls: { $$ = NULL; }//palabra vacía  
-               | fun_decls  { $$ = $1; };
+opt_fun_decls: { $$ = NULL; amb++;}//palabra vacía  
+               | fun_decls  { $$ = $1; amb++};
 
 
 fun_decls : fun_decls fun_decl          { $1 -> sig = $2, $$ = $1; }//{ cola($1) -> sig = $2; $$ = $1; }
@@ -194,10 +207,11 @@ fun_decl : FUN IDF PARENI oparams PAREND DOSPUNTOS type opt_decls BEGINI opt_stm
    } 
 
    insert_table_node_f(n2); 
-   //assign_type_f(n2, $7);
-   list_fun_var =  $8;
 
-  $$ = new_tree_node(FUN, $2, $7, 0, 0.0, $4 ,$10, NULL,n2); }
+  // list_fun_par =  $8;
+
+  $$ = new_tree_node(FUN, $2, $7, 0, 0.0, $4 ,
+  new_tree_node(EXEC, $2, $7, 0, 0.0, $8 ,$10,NULL,n2),n2); }
 
    |FUN IDF PARENI oparams PAREND DOSPUNTOS type PCOMA{
          
@@ -208,7 +222,7 @@ fun_decl : FUN IDF PARENI oparams PAREND DOSPUNTOS type opt_decls BEGINI opt_stm
 
    insert_table_node_f(n2); 
     //  assign_type_f(n2, $7);
-    $$ = new_tree_node(FUN, $2, $7, 0, 0.0, NULL ,NULL, NULL,n2);
+    $$ = new_tree_node(FUN, $2, $7, 0, 0.0, $4 ,NULL, NULL,n2);
 
    };
 
