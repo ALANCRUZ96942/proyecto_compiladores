@@ -2,16 +2,15 @@ program dosfun
    var x : int;
    var y : int
 
-   fun doble(x : int) : int
+   fun doble(x : int,z : int) : int
    var a : int
    begin
-     a <- x * 2;
+     a <- x * z;
      return a
    end
 
 begin
-  read x;
-  y <- doble(x);
-  print x;
+read x;
+  y <- doble(x,3);
   print y
 end

@@ -192,7 +192,7 @@ SYM *tablef[N]; // tabla hash de funciones
 SYM *tablefpar[N]; // tabla hash de funciones
 
 void igualar_params(ASR*,ASR*);
- ASR * global_par = NULL;  
+
 
 #line 198 "reconocedor.tab.c"
 
@@ -2219,15 +2219,31 @@ ASR * in = in_par;
 ASR * out = params_final;
 
    while((out != NULL)  ){
-
-      if(revision_tipos(out) == 'i'){
-            out  -> simb -> int_value = expr_int_value(in);
-      }
-      else{
+        if(in != NULL ){
+              if(revision_tipos(out) == 'i'){
+                  if(revision_tipos(in) == 'i'){
+                    out  -> simb -> int_value = expr_int_value(in);
+                  }  
+                  else{
+                  yyerror("Tipos incompatibles"); }
+            }
+          else{
+          if(revision_tipos(in) == 'f'){
             out  -> simb -> float_value = expr_float_value(in);
-      }
-      in = in -> sig;
-      out = out -> sig;
+          }
+               else{
+                      yyerror("Tipos incompatibles"); }
+              
+          }
+                out = out -> sig; in = in -> sig;
+        }else{
+        
+           yyerror("Faltan parametros en la función");
+        
+        }
+
+     
+
    }
   // yyerror("Tipos incompatibles o exceso de parametros ingresados"); 
 }
@@ -2541,8 +2557,10 @@ void check_tree(ASR * root)
       }
    
    if (parent -> node_type == RETRN)
-      {
+      {     
+
          if (expr_value_type(parent -> izquierda) == 'i'){
+
                 retorno = expr_int_value(parent -> izquierda);
                 return;
           }
@@ -2557,7 +2575,7 @@ void check_tree(ASR * root)
 
 // Return int result of expr
 int expr_int_value(ASR * root)
-{
+{   
    int aux1, aux2;
    if (root == NULL) return 0;
    if (root -> node_type == SUMA || root -> node_type == RESTA || root -> node_type == MULTI || root -> node_type == DIVIDE)
@@ -2574,11 +2592,25 @@ int expr_int_value(ASR * root)
    else if (root -> node_type == PARS) { return root -> simb -> int_value;} //buscar_simbolo_fpar(root -> name) -> int_value; } // Variable
    else if (root -> node_type == CALL) {
       
+
+      
+      
+     ASR * aux =  search_node_tree(tree_fun, root -> simb -> name);
+ /*  while(  
+      SYM *naux = nuevo_nodo_tabla_fpar(aux -> simb -> name, aux -> simb -> vale_type); 
+      if (buscar_simbolo_fpar($1) != NULL){ 
+         yyerror("Esta variable ya existe"); 
+      } 
+      insert_table_node_fpar(n4); 
+     )
      
-      ASR * aux =  search_node_tree(tree_fun, root -> simb -> name);
+    /* ASR * aux2 = new_tree_node(aux -> node_type,aux->name,aux->value_type,aux->int_value,aux->float_value,aux->izquierda,aux->derecha,aux->sig,naux);*/
      igualar_params(root -> izquierda,aux -> izquierda);
      check_tree(aux -> derecha);
+
+ 
      return retorno;
+     
   
 }
 }
@@ -2603,14 +2635,11 @@ float expr_float_value(ASR * root)
    else if (root -> node_type == PARS) {  return root -> simb -> float_value;}// buscar_simbolo_fpar(root -> name) -> float_value; } // Variable
    else if (root -> node_type == CALL) {
       
-      ASR * global_par = root -> izquierda;   
-
       ASR * aux =  search_node_tree(tree_fun, root -> simb -> name);
-      
-     igualar_params(global_par,global_par -> izquierda);
+     igualar_params(root -> izquierda,aux -> izquierda);
      check_tree(aux -> derecha);
      return retorno;
-
+  
    }
 
 }
