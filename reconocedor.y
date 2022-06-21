@@ -147,8 +147,8 @@ prog : PROGRAM IDF opt_decls opt_fun_decls BEGINI opt_stmts END { list = $3; tre
 ;
 
 opt_decls : //palabra vacia
-                           { $$ = NULL; }
-          | decl_lst                                           { $$ = $1; }
+                           { $$ = NULL; amb2++; }
+          | decl_lst                                           { $$ = $1; amb2++;}
 ;
 
 decl_lst : decl PCOMA decl_lst                                 { $1 -> sig = $3, $$ = $1; }
@@ -157,7 +157,7 @@ decl_lst : decl PCOMA decl_lst                                 { $1 -> sig = $3,
 
 decl : VAR IDF DOSPUNTOS type     {
 
-   if (amb == 0){
+   if (amb2 == 0){
       //LST *n = nuevo_nodo_lista($2, $4, NULL); 
 
       SYM *n2 = nuevo_nodo_tabla($2, $4); 
@@ -362,7 +362,6 @@ void main(int argc, char *argv[])
    tabla_simbf_par();
    yyparse();
    check_tree(tree);
-   //imprimir_sym();
    exit(0);
 }
 
@@ -580,7 +579,7 @@ void imprimir_sym()
 {
    for (int i = 0; i < N; i++) // Iterate array
    {
-      SYM *n = table[i];
+      SYM *n = tablefpar[i];
       while (n != NULL) // Iterate list
       {
          printf("nombre: %s,tipo: %c,int:%i, float:%f\n", n -> name, n -> value_type, n -> int_value, n -> float_value); // Content

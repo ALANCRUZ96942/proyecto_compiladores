@@ -1333,13 +1333,13 @@ yyreduce:
 
   case 3: /* opt_decls: %empty  */
 #line 150 "reconocedor.y"
-                           { (yyval.yynodo) = NULL; }
+                           { (yyval.yynodo) = NULL; amb2++; }
 #line 1338 "reconocedor.tab.c"
     break;
 
   case 4: /* opt_decls: decl_lst  */
 #line 151 "reconocedor.y"
-                                                               { (yyval.yynodo) = (yyvsp[0].yynodo); }
+                                                               { (yyval.yynodo) = (yyvsp[0].yynodo); amb2++;}
 #line 1344 "reconocedor.tab.c"
     break;
 
@@ -1359,7 +1359,7 @@ yyreduce:
 #line 158 "reconocedor.y"
                                   {
 
-   if (amb == 0){
+   if (amb2 == 0){
       //LST *n = nuevo_nodo_lista($2, $4, NULL); 
 
       SYM *n2 = nuevo_nodo_tabla((yyvsp[-2].yyid), (yyvsp[0].yytipo)); 
@@ -1949,7 +1949,6 @@ void main(int argc, char *argv[])
    tabla_simbf_par();
    yyparse();
    check_tree(tree);
-   //imprimir_sym();
    exit(0);
 }
 
@@ -2167,7 +2166,7 @@ void imprimir_sym()
 {
    for (int i = 0; i < N; i++) // Iterate array
    {
-      SYM *n = table[i];
+      SYM *n = tablefpar[i];
       while (n != NULL) // Iterate list
       {
          printf("nombre: %s,tipo: %c,int:%i, float:%f\n", n -> name, n -> value_type, n -> int_value, n -> float_value); // Content
