@@ -11,6 +11,7 @@
 int amb = 0;
 int amb2 = 0;
 int retorno = 0;
+
 typedef struct sym SYM;
 struct sym
 {
@@ -123,7 +124,7 @@ SYM *tablef[N]; // tabla hash de funciones
 SYM *tablefpar[N]; // tabla hash de funciones
 
 void igualar_params(ASR*,ASR*);
-
+ ASR * global_par = NULL;  
 %}
 
 %union{
@@ -555,10 +556,14 @@ char revision_tipos(ASR * root)
    }
    else if (n -> node_type == CALL) { 
    return n -> simb -> value_type;
-      } // llamada a función
-
+      } // llamada a funciónrevision_tipos(AS
 
    else if (n -> node_type == VAR) { 
+      return n -> simb -> value_type;
+      
+     // buscar_simbolo(n -> name) -> value_type; 
+   }
+      else if (n -> node_type == PARS) { 
       return n -> simb -> value_type;
       
      // buscar_simbolo(n -> name) -> value_type; 
@@ -621,21 +626,23 @@ ASR * search_node_tree(ASR * root, unsigned char name[]){
 }
 
 
-void igualar_params(ASR* in_par,ASR* globales){
-   ASR * aux = globales;
-   ASR * entradas = in_par;
-   while((globales != NULL && entradas != NULL) && revision_tipos(entradas) == revision_tipos(in_par) ){
+void igualar_params(ASR* in_par,ASR* params_final){
 
-      if(revision_tipos(globales) == 'i'){
-            globales  -> simb -> int_value = expr_int_value(in_par);
+ASR * in = in_par;
+ASR * out = params_final;
+
+   while((out != NULL)  ){
+
+      if(revision_tipos(out) == 'i'){
+            out  -> simb -> int_value = expr_int_value(in);
       }
       else{
-         globales  -> simb -> float_value = expr_float_value(in_par);
+            out  -> simb -> float_value = expr_float_value(in);
       }
-      globales = globales -> sig;
-      int_value = int_value -> sig;
+      in = in -> sig;
+      out = out -> sig;
    }
-   yyerror("Tipos incompatibles o exceso de parametros ingresados"); 
+  // yyerror("Tipos incompatibles o exceso de parametros ingresados"); 
 }
 
 
@@ -941,7 +948,8 @@ void check_tree(ASR * root)
    }
    
    if (parent -> node_type == EXEC)
-      {
+      {     
+            
             check_tree(parent -> derecha);
       }
    
@@ -979,15 +987,14 @@ int expr_int_value(ASR * root)
    else if (root -> node_type == PARS) { return root -> simb -> int_value;} //buscar_simbolo_fpar(root -> name) -> int_value; } // Variable
    else if (root -> node_type == CALL) {
       
-      ASR * global_par = root -> izquierda;   
-
+     
       ASR * aux =  search_node_tree(tree_fun, root -> simb -> name);
-     igualar_params(global_par,global_par -> izquierda);
+     igualar_params(root -> izquierda,aux -> izquierda);
      check_tree(aux -> derecha);
      return retorno;
   
 }
-
+}
 
 // Return float result of expr
 
