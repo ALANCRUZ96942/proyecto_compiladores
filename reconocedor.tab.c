@@ -77,6 +77,7 @@
 #define N 5000 //elementos en la tabla hash
 // Estructura de los simbolos
 int amb = 0;
+int amb2 = 0;
 typedef struct sym SYM;
 struct sym
 {
@@ -189,7 +190,7 @@ SYM *tablef[N]; // tabla hash de funciones
 SYM *tablefpar[N]; // tabla hash de funciones
 
 
-#line 193 "reconocedor.tab.c"
+#line 194 "reconocedor.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -669,12 +670,12 @@ static const yytype_int8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int16 yyrline[] =
 {
-       0,   145,   145,   149,   150,   153,   154,   157,   185,   186,
-     192,   193,   196,   197,   202,   216,   229,   230,   234,   235,
-     237,   253,   264,   265,   266,   267,   269,   287,   288,   289,
-     290,   294,   295,   298,   299,   302,   303,   304,   307,   308,
-     309,   312,   313,   314,   315,   316,   321,   322,   325,   326,
-     328,   329,   330,   331,   332
+       0,   146,   146,   150,   151,   154,   155,   158,   186,   187,
+     193,   194,   197,   198,   203,   217,   230,   231,   235,   236,
+     238,   254,   273,   274,   275,   276,   278,   298,   299,   300,
+     301,   305,   306,   309,   310,   313,   314,   315,   318,   319,
+     320,   323,   324,   325,   326,   327,   332,   333,   336,   337,
+     339,   340,   341,   342,   343
 };
 #endif
 
@@ -1325,37 +1326,37 @@ yyreduce:
   switch (yyn)
     {
   case 2: /* prog: PROGRAM IDF opt_decls opt_fun_decls BEGINI opt_stmts END  */
-#line 145 "reconocedor.y"
+#line 146 "reconocedor.y"
                                                                 { list = (yyvsp[-4].yynodo); tree = (yyvsp[-1].yynodo); tree_fun = (yyvsp[-3].yynodo);  }
-#line 1331 "reconocedor.tab.c"
+#line 1332 "reconocedor.tab.c"
     break;
 
   case 3: /* opt_decls: %empty  */
-#line 149 "reconocedor.y"
+#line 150 "reconocedor.y"
                            { (yyval.yynodo) = NULL; }
-#line 1337 "reconocedor.tab.c"
+#line 1338 "reconocedor.tab.c"
     break;
 
   case 4: /* opt_decls: decl_lst  */
-#line 150 "reconocedor.y"
+#line 151 "reconocedor.y"
                                                                { (yyval.yynodo) = (yyvsp[0].yynodo); }
-#line 1343 "reconocedor.tab.c"
+#line 1344 "reconocedor.tab.c"
     break;
 
   case 5: /* decl_lst: decl PCOMA decl_lst  */
-#line 153 "reconocedor.y"
+#line 154 "reconocedor.y"
                                                                { (yyvsp[-2].yynodo) -> sig = (yyvsp[0].yynodo), (yyval.yynodo) = (yyvsp[-2].yynodo); }
-#line 1349 "reconocedor.tab.c"
+#line 1350 "reconocedor.tab.c"
     break;
 
   case 6: /* decl_lst: decl  */
-#line 154 "reconocedor.y"
+#line 155 "reconocedor.y"
                                                                { (yyval.yynodo) = (yyvsp[0].yynodo); }
-#line 1355 "reconocedor.tab.c"
+#line 1356 "reconocedor.tab.c"
     break;
 
   case 7: /* decl: VAR IDF DOSPUNTOS type  */
-#line 157 "reconocedor.y"
+#line 158 "reconocedor.y"
                                   {
 
    if (amb == 0){
@@ -1383,47 +1384,47 @@ yyreduce:
 
 
 }
-#line 1387 "reconocedor.tab.c"
+#line 1388 "reconocedor.tab.c"
     break;
 
   case 8: /* type: INT  */
-#line 185 "reconocedor.y"
+#line 186 "reconocedor.y"
                                                            { (yyval.yytipo) = 'i'; }
-#line 1393 "reconocedor.tab.c"
+#line 1394 "reconocedor.tab.c"
     break;
 
   case 9: /* type: FLOAT  */
-#line 186 "reconocedor.y"
+#line 187 "reconocedor.y"
                                                            { (yyval.yytipo) = 'f'; }
-#line 1399 "reconocedor.tab.c"
+#line 1400 "reconocedor.tab.c"
     break;
 
   case 10: /* opt_fun_decls: %empty  */
-#line 192 "reconocedor.y"
+#line 193 "reconocedor.y"
                { (yyval.yynodo) = NULL; amb++;}
-#line 1405 "reconocedor.tab.c"
+#line 1406 "reconocedor.tab.c"
     break;
 
   case 11: /* opt_fun_decls: fun_decls  */
-#line 193 "reconocedor.y"
+#line 194 "reconocedor.y"
                             { (yyval.yynodo) = (yyvsp[0].yynodo); amb++;}
-#line 1411 "reconocedor.tab.c"
+#line 1412 "reconocedor.tab.c"
     break;
 
   case 12: /* fun_decls: fun_decls fun_decl  */
-#line 196 "reconocedor.y"
+#line 197 "reconocedor.y"
                                         { (yyvsp[-1].yynodo) -> sig = (yyvsp[0].yynodo), (yyval.yynodo) = (yyvsp[-1].yynodo); }
-#line 1417 "reconocedor.tab.c"
+#line 1418 "reconocedor.tab.c"
     break;
 
   case 13: /* fun_decls: fun_decl  */
-#line 197 "reconocedor.y"
+#line 198 "reconocedor.y"
                                      { (yyval.yynodo) = (yyvsp[0].yynodo); }
-#line 1423 "reconocedor.tab.c"
+#line 1424 "reconocedor.tab.c"
     break;
 
   case 14: /* fun_decl: FUN IDF PARENI oparams PAREND DOSPUNTOS type opt_decls BEGINI opt_stmts END  */
-#line 202 "reconocedor.y"
+#line 203 "reconocedor.y"
                                                                                         {
 
    SYM *n2 = nuevo_nodo_tabla_f((yyvsp[-9].yyid), (yyvsp[-4].yytipo)); 
@@ -1437,11 +1438,11 @@ yyreduce:
 
   (yyval.yynodo) = new_tree_node(FUN, (yyvsp[-9].yyid), (yyvsp[-4].yytipo), 0, 0.0, (yyvsp[-7].yynodo) ,
   new_tree_node(EXEC, (yyvsp[-9].yyid), (yyvsp[-4].yytipo), 0, 0.0, (yyvsp[-3].yynodo) ,(yyvsp[-1].yynodo),NULL,n2),NULL,n2); }
-#line 1441 "reconocedor.tab.c"
+#line 1442 "reconocedor.tab.c"
     break;
 
   case 15: /* fun_decl: FUN IDF PARENI oparams PAREND DOSPUNTOS type PCOMA  */
-#line 216 "reconocedor.y"
+#line 217 "reconocedor.y"
                                                       {
          
    SYM *n2 = nuevo_nodo_tabla_f((yyvsp[-6].yyid), (yyvsp[-1].yytipo)); 
@@ -1454,35 +1455,35 @@ yyreduce:
     (yyval.yynodo) = new_tree_node(FUN, (yyvsp[-6].yyid), (yyvsp[-1].yytipo), 0, 0.0, (yyvsp[-4].yynodo) ,NULL, NULL,n2);
 
    }
-#line 1458 "reconocedor.tab.c"
+#line 1459 "reconocedor.tab.c"
     break;
 
   case 16: /* oparams: %empty  */
-#line 229 "reconocedor.y"
+#line 230 "reconocedor.y"
          {(yyval.yynodo) = NULL;}
-#line 1464 "reconocedor.tab.c"
+#line 1465 "reconocedor.tab.c"
     break;
 
   case 17: /* oparams: params  */
-#line 230 "reconocedor.y"
+#line 231 "reconocedor.y"
             {(yyval.yynodo) = (yyvsp[0].yynodo);}
-#line 1470 "reconocedor.tab.c"
+#line 1471 "reconocedor.tab.c"
     break;
 
   case 18: /* params: param COMA params  */
-#line 234 "reconocedor.y"
+#line 235 "reconocedor.y"
                            { (yyvsp[-2].yynodo) -> sig = (yyvsp[0].yynodo), (yyval.yynodo) = (yyvsp[-2].yynodo); }
-#line 1476 "reconocedor.tab.c"
+#line 1477 "reconocedor.tab.c"
     break;
 
   case 19: /* params: param  */
-#line 235 "reconocedor.y"
+#line 236 "reconocedor.y"
                {(yyval.yynodo) = (yyvsp[0].yynodo);}
-#line 1482 "reconocedor.tab.c"
+#line 1483 "reconocedor.tab.c"
     break;
 
   case 20: /* param: IDF DOSPUNTOS type  */
-#line 237 "reconocedor.y"
+#line 238 "reconocedor.y"
                           {
 
       SYM *n4 = nuevo_nodo_tabla_fpar((yyvsp[-2].yyid), (yyvsp[0].yytipo)); 
@@ -1495,49 +1496,59 @@ yyreduce:
       (yyval.yynodo) = new_tree_node(PARS, (yyvsp[-2].yyid), (yyvsp[0].yytipo), 0, 0.0, NULL ,NULL, NULL,n4);
 
 }
-#line 1499 "reconocedor.tab.c"
+#line 1500 "reconocedor.tab.c"
     break;
 
   case 21: /* stmt: IDF ASSIGN expr  */
-#line 255 "reconocedor.y"
-    { 
-      SYM *n = buscar_simbolo((yyvsp[-2].yyid)); 
+#line 256 "reconocedor.y"
+      { 
+      
+      SYM * n = NULL;
+         if (amb == 0){
+         n = buscar_simbolo_fpar((yyvsp[-2].yyid)); 
+         
+      }else{
+            n = buscar_simbolo((yyvsp[-2].yyid)); 
+      }
+      
       if (n == NULL) { 
          yyerror("Variable no declarada"); 
       } if (n -> value_type != revision_tipos((yyvsp[0].yynodo))) { 
          yyerror("Tipos incompatibles"); 
       } 
       (yyval.yynodo) = new_tree_node(PYC, ";", '0', 0, 0.0, new_tree_node(ASSIGN, "assign", '0', 0, 0.0, new_tree_node(VAR, (yyvsp[-2].yyid), '0', 0, 0.0, NULL, NULL, NULL,n), (yyvsp[0].yynodo), NULL,NULL), NULL, NULL,NULL); }
-#line 1512 "reconocedor.tab.c"
+#line 1521 "reconocedor.tab.c"
     break;
 
   case 22: /* stmt: IF expresion THEN stmt  */
-#line 264 "reconocedor.y"
+#line 273 "reconocedor.y"
                                                                    { (yyval.yynodo) = new_tree_node(PYC, ";", '0', 0, 0.0, new_tree_node(IF, "if", '0', 0, 0.0, (yyvsp[-2].yynodo), (yyvsp[0].yynodo), NULL,NULL), NULL, NULL,NULL); }
-#line 1518 "reconocedor.tab.c"
+#line 1527 "reconocedor.tab.c"
     break;
 
   case 23: /* stmt: IF expresion THEN stmt ELSE stmt  */
-#line 265 "reconocedor.y"
+#line 274 "reconocedor.y"
                                                                    { (yyval.yynodo) = new_tree_node(PYC, ";", '0', 0, 0.0, new_tree_node(IF, "if", '0', 0, 0.0, (yyvsp[-4].yynodo), (yyvsp[-2].yynodo), (yyvsp[0].yynodo),NULL), NULL, NULL,NULL); }
-#line 1524 "reconocedor.tab.c"
+#line 1533 "reconocedor.tab.c"
     break;
 
   case 24: /* stmt: WHILE PARENI expresion PAREND stmt  */
-#line 266 "reconocedor.y"
+#line 275 "reconocedor.y"
                                                                    { (yyval.yynodo) = new_tree_node(PYC, ";", '0', 0, 0.0, new_tree_node(WHILE, "while", '0', 0, 0.0, (yyvsp[-2].yynodo),(yyvsp[0].yynodo),NULL,NULL), NULL, NULL,NULL); }
-#line 1530 "reconocedor.tab.c"
+#line 1539 "reconocedor.tab.c"
     break;
 
   case 25: /* stmt: REPEAT stmt UNTIL PARENI expresion PAREND  */
-#line 267 "reconocedor.y"
+#line 276 "reconocedor.y"
                                                                    { (yyval.yynodo) = new_tree_node(PYC, ";", '0', 0, 0.0, new_tree_node(REPEAT, "repeat", '0', 0, 0.0,  (yyvsp[-1].yynodo), (yyvsp[-4].yynodo),NULL ,NULL), NULL, NULL,NULL); }
-#line 1536 "reconocedor.tab.c"
+#line 1545 "reconocedor.tab.c"
     break;
 
   case 26: /* stmt: FOR IDF ASSIGN expr UNTIL expr STEP expr DO stmt  */
-#line 271 "reconocedor.y"
-           {SYM *n = buscar_simbolo((yyvsp[-8].yyid)); 
+#line 280 "reconocedor.y"
+           { SYM * n = NULL;
+         
+           if (amb == 0){n = buscar_simbolo_fpar((yyvsp[-8].yyid)); }else{n = buscar_simbolo((yyvsp[-8].yyid)); }
            if (n == NULL) { 
            yyerror("Variable no declarada"); 
            } 
@@ -1551,180 +1562,180 @@ yyreduce:
             new_tree_node(PYC, ";", '0', 0, 0.0, new_tree_node(ASSIGN, "assign", '0', 0, 0.0, new_tree_node(VAR, (yyvsp[-8].yyid), '0', 0, 0.0, NULL, NULL, NULL,n), (yyvsp[-6].yynodo), (yyvsp[-4].yynodo),NULL), NULL, NULL,NULL),(yyvsp[-2].yynodo),(yyvsp[0].yynodo),NULL),NULL,NULL,NULL);
            
            }
-#line 1555 "reconocedor.tab.c"
+#line 1566 "reconocedor.tab.c"
     break;
 
   case 27: /* stmt: READ IDF  */
-#line 287 "reconocedor.y"
-                                                           { SYM *n = buscar_simbolo((yyvsp[0].yyid)); if (n == NULL) { yyerror("Variable no declarada"); } (yyval.yynodo) = new_tree_node(PYC, ";", '0', 0, 0.0, new_tree_node(READ, "read", '0', 0, 0.0, new_tree_node(VAR, (yyvsp[0].yyid), '0', 0, 0.0, NULL, NULL, NULL,n), NULL, NULL,NULL), NULL, NULL,NULL); }
-#line 1561 "reconocedor.tab.c"
+#line 298 "reconocedor.y"
+                                                           {   SYM * n = NULL;          if (amb == 0){n = buscar_simbolo_fpar((yyvsp[0].yyid)); }else{n = buscar_simbolo((yyvsp[0].yyid)); }if (n == NULL) { yyerror("Variable no declarada"); } (yyval.yynodo) = new_tree_node(PYC, ";", '0', 0, 0.0, new_tree_node(READ, "read", '0', 0, 0.0, new_tree_node(VAR, (yyvsp[0].yyid), '0', 0, 0.0, NULL, NULL, NULL,n), NULL, NULL,NULL), NULL, NULL,NULL); }
+#line 1572 "reconocedor.tab.c"
     break;
 
   case 28: /* stmt: PRINT expr  */
-#line 288 "reconocedor.y"
+#line 299 "reconocedor.y"
                                                            { (yyval.yynodo) = new_tree_node(PYC, ";", '0', 0, 0.0, new_tree_node(PRINT, "print", '0', 0, 0.0, (yyvsp[0].yynodo), NULL, NULL,NULL), NULL, NULL,NULL); }
-#line 1567 "reconocedor.tab.c"
+#line 1578 "reconocedor.tab.c"
     break;
 
   case 29: /* stmt: RETRN expr  */
-#line 289 "reconocedor.y"
+#line 300 "reconocedor.y"
                                                            { char c = expr_value_type((yyvsp[0].yynodo)); (yyval.yynodo) = new_tree_node(RETRN, "return", c, 0, 0.0, (yyvsp[0].yynodo), NULL, NULL,NULL); }
-#line 1573 "reconocedor.tab.c"
+#line 1584 "reconocedor.tab.c"
     break;
 
   case 30: /* stmt: BEGINI opt_stmts END  */
-#line 290 "reconocedor.y"
+#line 301 "reconocedor.y"
                                                            { (yyval.yynodo) = (yyvsp[-1].yynodo); }
-#line 1579 "reconocedor.tab.c"
+#line 1590 "reconocedor.tab.c"
     break;
 
   case 31: /* opt_stmts: %empty  */
-#line 294 "reconocedor.y"
+#line 305 "reconocedor.y"
                                     { (yyval.yynodo) = NULL; }
-#line 1585 "reconocedor.tab.c"
+#line 1596 "reconocedor.tab.c"
     break;
 
   case 32: /* opt_stmts: stmt_lst  */
-#line 295 "reconocedor.y"
+#line 306 "reconocedor.y"
                                                                { (yyval.yynodo) = (yyvsp[0].yynodo); }
-#line 1591 "reconocedor.tab.c"
+#line 1602 "reconocedor.tab.c"
     break;
 
   case 33: /* stmt_lst: stmt  */
-#line 298 "reconocedor.y"
+#line 309 "reconocedor.y"
                                                                { (yyval.yynodo) = (yyvsp[0].yynodo); }
-#line 1597 "reconocedor.tab.c"
+#line 1608 "reconocedor.tab.c"
     break;
 
   case 34: /* stmt_lst: stmt PCOMA stmt_lst  */
-#line 299 "reconocedor.y"
+#line 310 "reconocedor.y"
                                                                { (yyvsp[-2].yynodo) -> sig = (yyvsp[0].yynodo), (yyval.yynodo) = (yyvsp[-2].yynodo); }
-#line 1603 "reconocedor.tab.c"
+#line 1614 "reconocedor.tab.c"
     break;
 
   case 35: /* expr: expr SUMA term  */
-#line 302 "reconocedor.y"
+#line 313 "reconocedor.y"
                                                                { char c1 = revision_tipos((yyvsp[-2].yynodo)); if (c1 != revision_tipos((yyvsp[0].yynodo))) { yyerror("Tipos incompatibles"); } (yyval.yynodo) = new_tree_node(SUMA, "+", c1, 0, 0.0, (yyvsp[-2].yynodo), (yyvsp[0].yynodo), NULL,NULL); }
-#line 1609 "reconocedor.tab.c"
+#line 1620 "reconocedor.tab.c"
     break;
 
   case 36: /* expr: expr RESTA term  */
-#line 303 "reconocedor.y"
+#line 314 "reconocedor.y"
                                                                { char c1 = revision_tipos((yyvsp[-2].yynodo)); if (c1 != revision_tipos((yyvsp[0].yynodo))) { yyerror("Tipos incompatibles"); } (yyval.yynodo) = new_tree_node(RESTA, "-", c1, 0, 0.0, (yyvsp[-2].yynodo), (yyvsp[0].yynodo), NULL,NULL); }
-#line 1615 "reconocedor.tab.c"
+#line 1626 "reconocedor.tab.c"
     break;
 
   case 37: /* expr: term  */
-#line 304 "reconocedor.y"
+#line 315 "reconocedor.y"
             {(yyval.yynodo) = (yyvsp[0].yynodo);}
-#line 1621 "reconocedor.tab.c"
+#line 1632 "reconocedor.tab.c"
     break;
 
   case 38: /* term: term MULTI factor  */
-#line 307 "reconocedor.y"
+#line 318 "reconocedor.y"
                                                                { char c1 = revision_tipos((yyvsp[-2].yynodo)); if (c1 != revision_tipos((yyvsp[0].yynodo))) { yyerror("Tipos incompatibles"); } (yyval.yynodo) = new_tree_node(MULTI, "*", c1, 0, 0.0, (yyvsp[-2].yynodo), (yyvsp[0].yynodo), NULL,NULL); }
-#line 1627 "reconocedor.tab.c"
+#line 1638 "reconocedor.tab.c"
     break;
 
   case 39: /* term: term DIVIDE factor  */
-#line 308 "reconocedor.y"
+#line 319 "reconocedor.y"
                                                                { char c1 = revision_tipos((yyvsp[-2].yynodo)); if (c1 != revision_tipos((yyvsp[0].yynodo))) { yyerror("Tipos incompatibles"); } (yyval.yynodo) = new_tree_node(DIVIDE, "/", c1, 0, 0.0, (yyvsp[-2].yynodo), (yyvsp[0].yynodo), NULL,NULL); }
-#line 1633 "reconocedor.tab.c"
+#line 1644 "reconocedor.tab.c"
     break;
 
   case 40: /* term: factor  */
-#line 309 "reconocedor.y"
+#line 320 "reconocedor.y"
                     {(yyval.yynodo) = (yyvsp[0].yynodo);}
-#line 1639 "reconocedor.tab.c"
+#line 1650 "reconocedor.tab.c"
     break;
 
   case 41: /* factor: PARENI expr PAREND  */
-#line 312 "reconocedor.y"
+#line 323 "reconocedor.y"
                                                                { (yyval.yynodo) = (yyvsp[-1].yynodo); }
-#line 1645 "reconocedor.tab.c"
+#line 1656 "reconocedor.tab.c"
     break;
 
   case 42: /* factor: IDF  */
-#line 313 "reconocedor.y"
-                                                           { SYM*n = buscar_simbolo((yyvsp[0].yyid)); if (n == NULL) { yyerror("Variable no declarada."); } (yyval.yynodo) = new_tree_node(VAR, (yyvsp[0].yyid), '0', 0, 0.0, NULL, NULL, NULL,n); }
-#line 1651 "reconocedor.tab.c"
+#line 324 "reconocedor.y"
+                                                           {  SYM * n = NULL; if (amb == 0){n = buscar_simbolo_fpar((yyvsp[0].yyid)); }else{n = buscar_simbolo((yyvsp[0].yyid)); }  if (n == NULL) { yyerror("Variable no declarada."); } (yyval.yynodo) = new_tree_node(VAR, (yyvsp[0].yyid), '0', 0, 0.0, NULL, NULL, NULL,n); }
+#line 1662 "reconocedor.tab.c"
     break;
 
   case 43: /* factor: NINT  */
-#line 314 "reconocedor.y"
+#line 325 "reconocedor.y"
                                                                { (yyval.yynodo) = new_tree_node(CONS, "int", 'i', (yyvsp[0].yyint), 0, NULL, NULL, NULL, NULL); }
-#line 1657 "reconocedor.tab.c"
+#line 1668 "reconocedor.tab.c"
     break;
 
   case 44: /* factor: NFLOAT  */
-#line 315 "reconocedor.y"
+#line 326 "reconocedor.y"
                                                                  { (yyval.yynodo) = new_tree_node(CONS, "float", 'f', 0, (yyvsp[0].yyfloat), NULL, NULL, NULL, NULL); }
-#line 1663 "reconocedor.tab.c"
+#line 1674 "reconocedor.tab.c"
     break;
 
   case 45: /* factor: IDF PARENI opt_exprs PAREND  */
-#line 316 "reconocedor.y"
-                                                              {SYM*n = buscar_simbolo((yyvsp[-3].yyid)); if (n == NULL) { yyerror("función no declarada."); } 
+#line 327 "reconocedor.y"
+                                                              {  SYM * n = NULL;if (amb == 0){n = buscar_simbolo_fpar((yyvsp[-3].yyid)); }else{n = buscar_simbolo((yyvsp[-3].yyid)); }  if (n == NULL) { yyerror("función no declarada."); } 
                                                                (yyval.yynodo) = new_tree_node(CALL, (yyvsp[-3].yyid), '0', 0, 0.0, (yyvsp[-1].yynodo), NULL, NULL,n); }
-#line 1670 "reconocedor.tab.c"
+#line 1681 "reconocedor.tab.c"
     break;
 
   case 46: /* opt_exprs: %empty  */
-#line 321 "reconocedor.y"
+#line 332 "reconocedor.y"
            {(yyval.yynodo) = NULL;}
-#line 1676 "reconocedor.tab.c"
+#line 1687 "reconocedor.tab.c"
     break;
 
   case 47: /* opt_exprs: expr_lst  */
-#line 322 "reconocedor.y"
+#line 333 "reconocedor.y"
            {(yyval.yynodo) = (yyvsp[0].yynodo);}
-#line 1682 "reconocedor.tab.c"
+#line 1693 "reconocedor.tab.c"
     break;
 
   case 48: /* expr_lst: expr COMA expr_lst  */
-#line 325 "reconocedor.y"
+#line 336 "reconocedor.y"
                              {(yyvsp[-2].yynodo) -> sig = (yyvsp[0].yynodo), (yyval.yynodo) = (yyvsp[-2].yynodo);}
-#line 1688 "reconocedor.tab.c"
+#line 1699 "reconocedor.tab.c"
     break;
 
   case 49: /* expr_lst: expr  */
-#line 326 "reconocedor.y"
+#line 337 "reconocedor.y"
                 {(yyval.yynodo) = (yyvsp[0].yynodo);}
-#line 1694 "reconocedor.tab.c"
+#line 1705 "reconocedor.tab.c"
     break;
 
   case 50: /* expresion: expr MENORQ expr  */
-#line 328 "reconocedor.y"
+#line 339 "reconocedor.y"
                                                                 { char c1 = revision_tipos((yyvsp[-2].yynodo)); if (c1 != revision_tipos((yyvsp[0].yynodo))) { yyerror("Tipos incompatibles"); } (yyval.yynodo) = new_tree_node(MENORQ, "<", c1, 0, 0.0, (yyvsp[-2].yynodo), (yyvsp[0].yynodo), NULL,NULL); }
-#line 1700 "reconocedor.tab.c"
+#line 1711 "reconocedor.tab.c"
     break;
 
   case 51: /* expresion: expr MAYORQ expr  */
-#line 329 "reconocedor.y"
+#line 340 "reconocedor.y"
                                                                 { char c1 = revision_tipos((yyvsp[-2].yynodo)); if (c1 != revision_tipos((yyvsp[0].yynodo))) { yyerror("Tipos incompatibles"); } (yyval.yynodo) = new_tree_node(MAYORQ, ">", c1, 0, 0.0, (yyvsp[-2].yynodo), (yyvsp[0].yynodo), NULL,NULL); }
-#line 1706 "reconocedor.tab.c"
+#line 1717 "reconocedor.tab.c"
     break;
 
   case 52: /* expresion: expr EQUAL expr  */
-#line 330 "reconocedor.y"
+#line 341 "reconocedor.y"
                                                                { char c1 = revision_tipos((yyvsp[-2].yynodo)); if (c1 != revision_tipos((yyvsp[0].yynodo))) { yyerror("Tipos incompatibles"); } (yyval.yynodo) = new_tree_node(EQUAL, "=", c1, 0, 0.0, (yyvsp[-2].yynodo), (yyvsp[0].yynodo), NULL,NULL); }
-#line 1712 "reconocedor.tab.c"
+#line 1723 "reconocedor.tab.c"
     break;
 
   case 53: /* expresion: expr MENORIQ expr  */
-#line 331 "reconocedor.y"
+#line 342 "reconocedor.y"
                                                                  { char c1 = revision_tipos((yyvsp[-2].yynodo)); if (c1 != revision_tipos((yyvsp[0].yynodo))) { yyerror("Tipos incompatibles"); } (yyval.yynodo) = new_tree_node(MENORIQ, "<=", c1, 0, 0.0, (yyvsp[-2].yynodo), (yyvsp[0].yynodo), NULL,NULL); }
-#line 1718 "reconocedor.tab.c"
+#line 1729 "reconocedor.tab.c"
     break;
 
   case 54: /* expresion: expr MAYORIQ expr  */
-#line 332 "reconocedor.y"
+#line 343 "reconocedor.y"
                                                                  { char c1 = revision_tipos((yyvsp[-2].yynodo)); if (c1 != revision_tipos((yyvsp[0].yynodo))) { yyerror("Tipos incompatibles"); } (yyval.yynodo) = new_tree_node(MAYORIQ, ">=", c1, 0, 0.0, (yyvsp[-2].yynodo), (yyvsp[0].yynodo), NULL,NULL); }
-#line 1724 "reconocedor.tab.c"
+#line 1735 "reconocedor.tab.c"
     break;
 
 
-#line 1728 "reconocedor.tab.c"
+#line 1739 "reconocedor.tab.c"
 
       default: break;
     }
@@ -1918,7 +1929,7 @@ yyreturn:
   return yyresult;
 }
 
-#line 335 "reconocedor.y"
+#line 346 "reconocedor.y"
 
 
 int yyerror(char const * s)

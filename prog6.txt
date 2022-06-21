@@ -1,9 +1,9 @@
 program seis
    var x : int;
-   var y : int
+   var ff : int
 begin
-  y <- 10;
+  ff <- 10;
   x <- -10;
-  if x < y then
-    print y
+  if x < ff then
+    print ff
 end

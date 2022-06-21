@@ -1,0 +1,17 @@
+program tresfun
+   var x : int;
+   var y : int
+
+   fun factorial2(x : int) : int
+   var a : int
+   begin
+     a <- x * factorial2(x-1);
+     return a
+   end
+
+begin
+  read x;
+  y <- factorial1(x);
+  print x;
+  print y
+end
