@@ -1,5 +1,16 @@
+Proyecto Final Compiladores; Lenguajes y Traductores
+
+Alumnos:
+Alan Alberto Cruz García A01733377
+Emmanuel Ramírez Reyes A01733357
+Óscar Francisco López Carrasco A01732691
+
+Código documentado en herramienta (github: https://github.com/ALANCRUZ96942/proyecto_compiladores)
+
 El presente reconocedor léxico y sintáctico LR basa su funcionamiento en 
-un arbol sintáctico reducido y una tabla de símbolos en nuestro caso implementado en una tabla hash, sin embargo, también se utiliza una lista para almacenar los nodos de tabla hash en ella, durante la declaración de variables.
+un arbol sintáctico reducido y una tabla de símbolos en nuestro caso implementado en una tabla hash, donde 
+los nodos de cada arbol de definición tienen un apuntador hacia ellos.
+Finalmente se elaboró un interprete para cada una de las funciones de la gramatica establecida.
 
 Para compilarlo es necesario seguir los siguientes pasos:
 
