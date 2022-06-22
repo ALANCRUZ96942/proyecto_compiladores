@@ -1,16 +1,13 @@
 program unofun
-  var x : int;
-var z : int
+  var x : int
 
-  fun ff(l : int) : int
+  fun ff(x : int) : int
     var y : int
   begin
-   y <- 2;
-    return l + y
+    return x
   end
- begin
-    
-     x <- ff(100,23,43);
-     print x
 
+  begin
+     x <- ff(3);
+     print x
   end

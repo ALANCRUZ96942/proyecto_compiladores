@@ -82,7 +82,6 @@ char expr_value_type(ASR * root);
 
 
 void print_tree(ASR *, int);
-void print_list(LST *);
 void print_table();
 
 
