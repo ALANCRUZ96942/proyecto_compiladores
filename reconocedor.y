@@ -6,12 +6,13 @@
 #include <stdio.h>
 #include <string.h>
 
-#define N 5000 //elementos en la tabla hash
-// Estructura de los simbolos
-int amb = 0;
-int amb2 = 0;
-int retorno = 0;
+#define N 5000 //elementos en las tablas hash
 
+int amb = 0; //variable de ambiente 1
+int amb2 = 0; //variable de ambiente 2
+int retorno = 0;  //variable global de ambiente
+
+// Estructura de los simbolos
 typedef struct sym SYM;
 struct sym
 {
@@ -35,16 +36,6 @@ struct asr {
    SYM * simb;
 };
 
-// Estructura de lista nos permite tener mejor control de sus nodos internos
-typedef struct lst LST;
-struct lst
-{
-   unsigned char name[50];
-   char value_type;
-   LST * sig;
-};
-
-
 
 
 
@@ -60,18 +51,10 @@ ASR * search_node_tree(ASR *,unsigned char []);
 char revision_tipos(ASR *);
 
 
-/*void assign_type(LST *, int);
-void assign_type_f(SYM*);
-void assign_type_fpar(SYM*);*/
-
 void tabla_simb();
 void tabla_simbf();
 void tabla_simbf_par();
 unsigned int hash(unsigned char []);
-
-
-LST * nuevo_nodo_lista(unsigned char [], int, LST *);
-LST * cola(LST *);
 
 SYM * nuevo_nodo_tabla(unsigned char [], int);
 SYM * buscar_simbolo(unsigned char []);
@@ -104,12 +87,12 @@ void print_table();
 
 
 //inicializacion tabla y lista de simbolos
-ASR *tree = NULL;
-ASR * tree_fun = NULL;  //arbol de funcionalidades de funciones
+ASR *tree = NULL; // arbol del programa
+ASR * tree_fun = NULL;  //arbol de funciones
 
-ASR *list = NULL;
+ASR *list = NULL; // lista de simbolos
 ASR *list_fun = NULL; // lista de id de funciones
-//ASR *list_fun_par = NULL; // lista de variables locales de funciones
+
 
 
 
@@ -119,9 +102,9 @@ ASR *list_fun = NULL; // lista de id de funciones
 
 SYM *table[N]; // tabla hash de simbolos globales
 SYM *tablef[N]; // tabla hash de funciones
-//SYM *tablefvar[N]; // tabla hash de funciones
 
-SYM *tablefpar[N]; // tabla hash de funciones
+
+SYM *tablefpar[N]; // tabla hash de funciones parametros
 
 void igualar_params(ASR*,ASR*);
 
@@ -162,8 +145,6 @@ decl_lst : decl PCOMA decl_lst                                 { $1 -> sig = $3,
 decl : VAR IDF DOSPUNTOS type     {
 
    if (amb2 == 0){
-      //LST *n = nuevo_nodo_lista($2, $4, NULL); 
-
       SYM *n2 = nuevo_nodo_tabla($2, $4); 
       if (buscar_simbolo($2) != NULL){ 
          yyerror("Esta variable ya existe"); 
@@ -173,7 +154,7 @@ decl : VAR IDF DOSPUNTOS type     {
       $$ = new_tree_node(VAR, $2, $4, 0, 0.0, NULL, NULL, NULL,n2);
    }else{
       
-      //LST *n = nuevo_nodo_lista($2, $4, NULL); 
+
 
       SYM *n2 = nuevo_nodo_tabla_fpar($2, $4); 
       if (buscar_simbolo_fpar($2) != NULL){ 
@@ -198,7 +179,7 @@ opt_fun_decls: { $$ = NULL; amb++;}//palabra vacía
                | fun_decls  { $$ = $1; amb++;};
 
 
-fun_decls : fun_decls fun_decl          { $1 -> sig = $2, $$ = $1; }//{ cola($1) -> sig = $2; $$ = $1; }
+fun_decls : fun_decls fun_decl          { $1 -> sig = $2, $$ = $1; }
           | fun_decl                 { $$ = $1; };
 
 
@@ -213,7 +194,6 @@ fun_decl : FUN IDF PARENI oparams PAREND DOSPUNTOS type opt_decls BEGINI opt_stm
 
    insert_table_node_f(n2); 
 
-  // list_fun_par =  $8;
 
   $$ = new_tree_node(FUN, $2, $7, 0, 0.0, $4 ,
   new_tree_node(EXEC, $2, $7, 0, 0.0, $8 ,$10,NULL,n2),NULL,n2); }
@@ -226,7 +206,6 @@ fun_decl : FUN IDF PARENI oparams PAREND DOSPUNTOS type opt_decls BEGINI opt_stm
    } 
 
    insert_table_node_f(n2); 
-    //  assign_type_f(n2, $7);
     $$ = new_tree_node(FUN, $2, $7, 0, 0.0, $4 ,NULL, NULL,n2);
 
    };
@@ -236,7 +215,7 @@ oparams: {$$ = NULL;}
 
 
 params: 
-         param COMA params { $1 -> sig = $3, $$ = $1; } //{cola($1) -> sig = $3; $$ = $1;}
+         param COMA params { $1 -> sig = $3, $$ = $1; } 
          |param{$$ = $1;};
 
 param: IDF DOSPUNTOS type {
@@ -246,7 +225,7 @@ param: IDF DOSPUNTOS type {
          yyerror("Esta variable ya existe"); 
       } 
       insert_table_node_fpar(n4); 
-     // assign_type_fpar(n4, $7);
+
 
       $$ = new_tree_node(PARS, $1, $3, 0, 0.0, NULL ,NULL, NULL,n4);
 
@@ -359,15 +338,16 @@ void main(int argc, char *argv[])
 {
    yyin = fopen(argv[1], "r");
 
+//limpieza de tablas
    tabla_simb();
    
    tabla_simbf();
    
    tabla_simbf_par();
    yyparse();
-  
+  //ejecutar arbol
    check_tree(tree);
-   imprimir_sym();
+  // imprimir_sym(); imprimir tabla de simbolos
    exit(0);
 }
 
@@ -387,16 +367,6 @@ ASR * new_tree_node(int node_type, unsigned char name[], char value_type, int in
    return aux;
 }
 
-LST * nuevo_nodo_lista(unsigned char name[], int type, LST * sig)
-{
-   LST * aux = (LST *) malloc(sizeof(LST)); //nodo de tipo lista
-   strcpy(aux -> name, name);
-   aux -> value_type = type;
-   aux -> sig = sig;
-
-   return aux;
-}
-
 SYM * nuevo_nodo_tabla(unsigned char name[], int type)
 {
    SYM * aux = (SYM *) malloc(sizeof(SYM)); //nodo de simbolo
@@ -405,7 +375,6 @@ SYM * nuevo_nodo_tabla(unsigned char name[], int type)
 
    return aux;
 }
-
 
 
 void insert_table_node(SYM *t)
@@ -518,18 +487,6 @@ SYM * buscar_simbolo_fpar(unsigned char name[])
 
 
 
-
-// elemento cola en lista
-LST * cola(LST * head)
-{
-   LST *n = head;
-   while (n -> sig != NULL) { n = n -> sig; } 
-
-   return n; 
-}
-
-
-
 // busqueda
 SYM * buscar_simbolo(unsigned char name[])
 {
@@ -561,13 +518,11 @@ char revision_tipos(ASR * root)
    else if (n -> node_type == VAR) { 
       return n -> simb -> value_type;
       
-     // buscar_simbolo(n -> name) -> value_type; 
    }
       else if (n -> node_type == PARS) { 
       return n -> simb -> value_type;
       
-     // buscar_simbolo(n -> name) -> value_type; 
-   } // Variable
+   } // parametro de funcion
    char a = revision_tipos(n -> izquierda); 
    char b = revision_tipos(n -> derecha); 
    if (a == b) { return a; } 
@@ -658,7 +613,7 @@ ASR * out = params_final;
      
 
    }
-  // yyerror("Tipos incompatibles o exceso de parametros ingresados"); 
+
 }
 
 
@@ -963,11 +918,15 @@ void check_tree(ASR * root)
       }
    }
    
+         //ejecucion de función
+
    if (parent -> node_type == EXEC)
       {     
             
             check_tree(parent -> derecha);
       }
+
+      //retornar
    
    if (parent -> node_type == RETRN)
       {     
@@ -986,7 +945,7 @@ void check_tree(ASR * root)
    check_tree(parent -> sig);
 }
 
-// Return int result of expr
+//valor entero de expr
 int expr_int_value(ASR * root)
 {   
    int aux1, aux2;
@@ -1009,15 +968,6 @@ int expr_int_value(ASR * root)
       
       
      ASR * aux =  search_node_tree(tree_fun, root -> simb -> name);
- /*  while(  
-      SYM *naux = nuevo_nodo_tabla_fpar(aux -> simb -> name, aux -> simb -> vale_type); 
-      if (buscar_simbolo_fpar($1) != NULL){ 
-         yyerror("Esta variable ya existe"); 
-      } 
-      insert_table_node_fpar(n4); 
-     )
-     
-    /* ASR * aux2 = new_tree_node(aux -> node_type,aux->name,aux->value_type,aux->int_value,aux->float_value,aux->izquierda,aux->derecha,aux->sig,naux);*/
      igualar_params(root -> izquierda,aux -> izquierda);
      check_tree(aux -> derecha);
 
@@ -1028,7 +978,7 @@ int expr_int_value(ASR * root)
 }
 }
 
-// Return float result of expr
+// valor flotante de expr
 
 float expr_float_value(ASR * root)
 {
@@ -1058,13 +1008,13 @@ float expr_float_value(ASR * root)
 }
 
 
-// Return value type of expr
+// value type de expresion
 char expr_value_type(ASR * root)
 {
    if (root == NULL) return '0';
    if (root -> node_type == VAR) {  return root -> simb -> value_type;}
    if (root -> node_type == PARS) {  return root -> simb -> value_type;}
-   if (root -> node_type == CONS) {  return root -> simb -> value_type;}// buscar_simbolo(root -> name) -> value_type; } // Look at the symbol table for the symbol's value type
+   if (root -> node_type == CONS) {  return root -> simb -> value_type;}
    else { return root -> value_type; }
 }
 
